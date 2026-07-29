@@ -21,17 +21,24 @@
 #
 
 # %% [markdown]
-# ## Code
+# ### Imports - can ignore
 
 # %%
+### imports needed for running the code
 import ipywidgets as widgets
 from IPython.display import display, Math
 
 
-# Define model variables
-parameters = [
-    {
-        "name": "tau",
+# %% [markdown]
+# ## Static tunnel model with sliders
+
+# %% [markdown]
+# ### Defining model variabls
+
+# %%
+# Define tunnel model variables to be used in sliders
+sliders_vars = {
+    "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.2",
@@ -40,7 +47,7 @@ parameters = [
         "max": 1,
         "step": 0.01
     },
-    {
+    "iSun": {
         "name": "iSun",
         "description": "Solar radiation",
         "unit": "W/m2",
@@ -50,8 +57,7 @@ parameters = [
         "max": 1500,
         "step": 10
     },
-    {
-        "name": "fTunnelSky",
+    "fTunnelSky": {
         "description": "View factor between tunnel and sky",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.5",
@@ -60,8 +66,7 @@ parameters = [
         "max": 1,
         "step": 0.01
     },
-    {
-        "name": "epsCover",
+    "epsCover": {
         "description": "Emissivity of the cover, including effect of screen(s)",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.3",
@@ -70,8 +75,7 @@ parameters = [
         "max": 1,
         "step": 0.01
     },
-    {
-        "name": "alphaR",
+    "alphaR": {
         "description": "Apparent transfer coefficient for thermal radiation",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.6",
@@ -80,8 +84,7 @@ parameters = [
         "max": 20,
         "step": 0.1
     },
-    {
-        "name": "tSky",
+    "tSky": {
         "description": "Apparent temperature of the sky (depends, among other things, on cloudiness)",
         "unit": "°C",
         "reference": "Stanghellini et al. (2024), Eq. 3.9",
@@ -90,8 +93,7 @@ parameters = [
         "max": 50,
         "step": 1
     },
-    {
-        "name": "tOut",
+    "tOut": {
         "description": "Temperature of the air outside the greenhouse",
         "unit": "°C",
         "reference": "Stanghellini et al. (2024), Eq. 3.9",
@@ -100,8 +102,7 @@ parameters = [
         "max": 50,
         "step": 1
     },
-    {
-        "name": "tSoil",
+    "tSoil": {
         "description": "Temperature of the soil surface",
         "unit": "°C",
         "reference": "Stanghellini et al. (2024), Eq. 3.9",
@@ -110,8 +111,7 @@ parameters = [
         "max": 50,
         "step": 1
     },
-    {
-        "name": "fTunnelSoil",
+    "fTunnelSoil": {
         "description": "View factor between tunnel and soil",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.5",
@@ -120,8 +120,7 @@ parameters = [
         "max": 1,
         "step": 0.01
     },
-    {
-        "name": "epsSoil",
+    "epsSoil": {
         "description": "Emissivity of the soil, including possible effect of mulch",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.3",
@@ -130,8 +129,7 @@ parameters = [
         "max": 1,
         "step": 0.01
     },
-    {
-        "name": "aCoverOverSoil",
+    "aCoverOverSoil": {
         "description": "Surface area of cover per unit surface area of soil",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.7. This variable is used to represent aCover divided by aSoil",
@@ -140,8 +138,7 @@ parameters = [
         "max": 5,
         "step": 0.1
     },
-    {
-        "name": "alphaCover",
+    "alphaCover": {
         "description": "Heat transfer coefficient of the cover material (including possible screens)",
         "unit": "W/m2/K",
         "reference": "Stanghellini et al. (2024), Eq. 3.7",
@@ -150,8 +147,7 @@ parameters = [
         "max": 20,
         "step": 0.1
     },
-    {
-        "name": "alphaSoil",
+    "alphaSoil": {
         "description": "Heat transfer coefficient of the soil (including possible mulches)",
         "unit": "W/m2/K",
         "reference": "Stanghellini et al. (2024), Eq. 3.68",
@@ -159,8 +155,31 @@ parameters = [
         "min": 0,
         "max": 20,
         "step": 0.1
-    },
-]
+    }
+}
+
+
+# %% [markdown]
+# ### Defining calculation of tTunnel
+
+# %%
+# Define calculation of tTunnel
+def calc_tTunnel(tau, iSun, fTunnelSky, epsCover, alphaR, 
+            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
+            alphaCover, alphaSoil):
+    tTunnel = ( 
+            tau * iSun 
+            + fTunnelSky * epsCover * alphaR * tSky 
+            + aCoverOverSoil * alphaCover * tOut 
+            + tSoil * (fTunnelSoil * epsSoil * alphaR + alphaSoil)
+        ) / (
+            fTunnelSky * epsCover * alphaR 
+            + aCoverOverSoil * alphaCover 
+            + fTunnelSoil * epsSoil * alphaR 
+            + alphaSoil
+        )
+    return tTunnel
+
 
 # Define displayed equation
 equation_latex = r"""
@@ -189,6 +208,66 @@ tTunnel =
 }
 """
 
+# Define dynamic display
+def dynamic_display(tau, iSun, fTunnelSky, epsCover, alphaR, 
+            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
+            alphaCover, alphaSoil):
+    numerator = (
+        tau*iSun
+        + fTunnelSky*epsCover*alphaR*tSky
+        + aCoverOverSoil*alphaCover*tOut
+        + tSoil*(fTunnelSoil*epsSoil*alphaR + alphaSoil)
+    )
+
+    denominator = (
+        fTunnelSky*epsCover*alphaR
+        + aCoverOverSoil*alphaCover
+        + fTunnelSoil*epsSoil*alphaR
+        + alphaSoil
+    )
+
+    tTunnel = calc_tTunnel(tau, iSun, fTunnelSky, epsCover, alphaR, 
+            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
+            alphaCover, alphaSoil)
+
+    substituted_equation = rf"""
+        =
+        \frac{{
+        {tau:.2f}\times{iSun:.0f}
+        +
+        {fTunnelSky:.2f}\times{epsCover:.2f}\times{alphaR:.1f}\times{tSky:.0f}
+        +
+        {aCoverOverSoil:.1f}\times{alphaCover:.1f}\times{tOut:.0f}
+        +
+        {tSoil:.0f}\times
+        \left(
+        {fTunnelSoil:.2f}\times{epsSoil:.2f}\times{alphaR:.1f}
+        +
+        {alphaSoil:.2f}
+        \right)
+        }}
+        {{
+        {fTunnelSky:.2f}\times{epsCover:.2f}\times{alphaR:.1f}
+        +
+        {aCoverOverSoil:.1f}\times{alphaCover:.1f}
+        +
+        {fTunnelSoil:.2f}\times{epsSoil:.2f}\times{alphaR:.1f}
+        +
+        {alphaSoil:.2f}
+        }}
+        =
+        \frac{{{numerator:.2f}}}{{{denominator:.2f}}}
+        =
+        {{{tTunnel:.1f}}}\,^\circ\mathrm{{C}}
+        
+        """
+    return substituted_equation
+
+
+# %% [markdown] jp-MarkdownHeadingCollapsed=true
+# ### Set up widget - can ignore
+
+# %%
 # Create header row
 header = widgets.HBox([
     widgets.HTML(
@@ -218,35 +297,34 @@ header = widgets.HBox([
 sliders = {}
 rows = []
 
-for p in parameters:
-
+for name, var in sliders_vars.items():
     slider = widgets.FloatSlider(
-        value=p["value"],
-        min=p["min"],
-        max=p["max"],
-        step=p["step"],
+        value=var["value"],
+        min=var["min"],
+        max=var["max"],
+        step=var["step"],
         continuous_update=True,
         layout=widgets.Layout(width="300px")
     )
 
-    sliders[p["name"]] = slider
+    sliders[name] = slider
 
     row = widgets.HBox([
         widgets.HTML(
-            f"<code><b>{p['name']}</b></code>",
+            f"<code><b>{name}</b></code>",
             layout=widgets.Layout(width="150px")
         ),
         slider,
         widgets.HTML(
-            p["description"],
+            var["description"],
             layout=widgets.Layout(width="250px")
         ),
         widgets.HTML(
-            p["unit"],
+            var["unit"],
             layout=widgets.Layout(width="100px")
         ),
         widgets.HTML(
-            f"<i>{p['reference']}</i>",
+            f"<i>{var['reference']}</i>",
             layout=widgets.Layout(width="200px")
         )
     ])
@@ -279,17 +357,9 @@ def calculate():
     alphaSoil = values["alphaSoil"]
     
 
-    tTunnel = (
-        tau * iSun 
-        + fTunnelSky * epsCover * alphaR * tSky 
-        + aCoverOverSoil * alphaCover * tOut 
-        + tSoil * (fTunnelSoil * epsSoil * alphaR + alphaSoil)
-    ) / (
-        fTunnelSky * epsCover * alphaR 
-        + aCoverOverSoil * alphaCover 
-        + fTunnelSoil * epsSoil * alphaR 
-        + alphaSoil
-    )
+    tTunnel = calc_tTunnel(tau, iSun, fTunnelSky, epsCover, alphaR, 
+            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
+            alphaCover, alphaSoil)
 
     return tTunnel, values
 
@@ -312,52 +382,9 @@ def update(*args):
     alphaCover = values["alphaCover"]
     alphaSoil = values["alphaSoil"]
 
-    # Calculate tTunnel
-    numerator = (
-        tau*iSun
-        + fTunnelSky*epsCover*alphaR*tSky
-        + aCoverOverSoil*alphaCover*tOut
-        + tSoil*(fTunnelSoil*epsSoil*alphaR + alphaSoil)
-    )
-
-    denominator = (
-        fTunnelSky*epsCover*alphaR
-        + aCoverOverSoil*alphaCover
-        + fTunnelSoil*epsSoil*alphaR
-        + alphaSoil
-    )
-
-    substituted_equation = rf"""
-    =
-    \frac{{
-    {tau:.2f}\times{iSun:.0f}
-    +
-    {fTunnelSky:.2f}\times{epsCover:.2f}\times{alphaR:.1f}\times{tSky:.0f}
-    +
-    {aCoverOverSoil:.1f}\times{alphaCover:.1f}\times{tOut:.0f}
-    +
-    {tSoil:.0f}\times
-    \left(
-    {fTunnelSoil:.2f}\times{epsSoil:.2f}\times{alphaR:.1f}
-    +
-    {alphaSoil:.2f}
-    \right)
-    }}
-    {{
-    {fTunnelSky:.2f}\times{epsCover:.2f}\times{alphaR:.1f}
-    +
-    {aCoverOverSoil:.1f}\times{alphaCover:.1f}
-    +
-    {fTunnelSoil:.2f}\times{epsSoil:.2f}\times{alphaR:.1f}
-    +
-    {alphaSoil:.2f}
-    }}
-    =
-    \frac{{{numerator:.2f}}}{{{denominator:.2f}}}
-    =
-    {{{tTunnel:.1f}}}\,^\circ\mathrm{{C}}
-    
-    """
+    substituted_equation = dynamic_display(tau, iSun, fTunnelSky, epsCover, alphaR, 
+            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
+            alphaCover, alphaSoil)
 
     with result:
         result.clear_output()
@@ -391,7 +418,7 @@ def display_tTunnel_widget():
 
 
 # %% [markdown]
-# ## Widget
+# ### Display widget
 
 # %%
 display_tTunnel_widget()
@@ -517,8 +544,6 @@ tunnel_model.update({
 })
 
 # %%
-import pprint
-pprint.pprint(tunnel_model)
 
 # %%
 import green
