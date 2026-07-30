@@ -25,6 +25,9 @@
 
 # %%
 ### Imports needed for running the code and other general setup
+import warnings
+warnings.filterwarnings("ignore")
+
 import os
 
 from IPython.display import display
@@ -208,8 +211,10 @@ plt.show()
 # New model
 options = {
     "options": {
-        "t_start": "0",
-        "t_end": str(10 * 24 * 60 * 60)
+        "t_start": str(15 * 24 * 60 * 60),
+        "t_end": str(25 * 24 * 60 * 60),
+        "output_step": "300",
+        "t_eval": "300"
     }
 }
 
@@ -226,6 +231,24 @@ tunnel_model["dummy"] = {
         "type": "state",
         "definition": "0",
         "init": "0"
+    }
+
+tunnel_model["tTunnel"] = {
+        "description": "Temperature of the unventilated greenhouse",
+        "unit": "°C",
+        "reference": "Stanghellini et al. (2024), Eq. 3.9 (rearranged to isolate tTunnel)",
+        "type": "aux",
+        "definition": "(" \
+        "tau * iSun " \
+        "+ fTunnelSky * epsCover * alphaR * tSky " \
+        "+ aCoverOverSoil * alphaCover * tOut " \
+        "+ tSoil * (fTunnelSoil * epsSoil * alphaR + alphaSoil)" \
+    ") / ( " \
+        "fTunnelSky * epsCover * alphaR " \
+        "+ aCoverOverSoil * alphaCover " \
+        "+ fTunnelSoil * epsSoil * alphaR " \
+        "+ alphaSoil " \
+    ")"
     }
 
 mdl_2 = greenlight.GreenLight(
@@ -261,7 +284,7 @@ units_dict = dict(zip(variable_names, units))
 """Present results in a graph graphs"""
 # Choose variables out of output_df.columns
 # For a description of a variable var, see descriptions_dict[var]. For the unit, see units_dict[var]
-chosen_vars = ["tSky", "tOut", "tSoil", "tTunnel"]
+chosen_vars = ["tSky", "tOut", "tTunnel", "tSoil"]
 
 plt.figure(figsize=(10, 6))
 
@@ -285,5 +308,132 @@ plt.title("Simulation results")
 plt.legend()
 plt.grid(True)
 plt.show()
+
+# %%
+""" Zoom in """
+zoomed_output = output_2
+zoomed_output.columns = variable_names
+zoomed_output = zoomed_output[zoomed_output["Time"] < 16 * 24 * 60 * 60]
+
+chosen_vars = ["tTunnel"]
+
+plt.figure(figsize=(10, 6))
+
+for var in chosen_vars:
+    plt.plot(zoomed_output["Time"], zoomed_output[var], '-o', label=var)
+
+plt.xlabel("Time (s)")
+plt.ylabel("Temperature (°C)")
+plt.title("tTunnel")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+plt.figure(figsize=(10, 6))
+
+plt.plot(zoomed_output["Time"], zoomed_output["iSun"], '-o', label="iSun")
+
+plt.xlabel("Time (s)")
+plt.ylabel("Radiation (W/m2)")
+plt.title("iSun")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+
+# %%
+# A guess at capacity:
+# The air has a capacity of 1200 J/m3/K (Stanghellini textbook)
+# Soil has a capacity of 1.73e6 J/m3/K (Vanthoor)
+# Per m2 assume we consider 2.5 m of air and 0.1 m of soil, that gives:
+# 1200x(2.5/2.6) + 1.73e6 (0.1/2.6) = 1153 + 66538 = 67691
+
+
+dynamic_model = tunnel_model
+dynamic_model["tTunnel"] = {
+        "description": "Temperature of the unventilated greenhouse",
+        "unit": "°C",
+        "reference": "Stanghellini et al. (2024), Eq. 3.9 (rearranged to isolate tTunnel)",
+        "type": "state",
+        "init": "8",
+        "definition": "1/(67691)*(" \
+        "tau * iSun " \
+        "- fTunnelSky * epsCover * alphaR * (tTunnel - tSky) " \
+        "- aCoverOverSoil * alphaCover * (tTunnel - tOut) " \
+        "- fTunnelSoil * epsSoil * alphaR * (tTunnel - tSoil) " \
+        "- alphaSoil * (tTunnel - tSoil)"
+    ")"
+    }
+
+mdl_3 = greenlight.GreenLight(
+    base_path=os.getcwd(), 
+    input_prompt=[tunnel_model, os.path.join("input", "example_weather.csv"), options], 
+    output_path=os.path.join("output", "output_3.csv")
+)
+mdl_3.run()
+
+# %%
+"""Load simulation result"""
+output_3 = pd.read_csv(os.path.join("output", "output_3.csv"), header=[0,1,2], low_memory=False)
+
+"""Make graphs"""
+variable_names = output_3.columns.get_level_values(0)
+descriptions = output_3.columns.get_level_values(1)
+units = output_3.columns.get_level_values(2)
+
+# Create dictionaries for descriptions and units
+descriptions_dict = dict(zip(variable_names, descriptions))
+units_dict = dict(zip(variable_names, units))
+
+"""Present results in a graph graphs"""
+# Choose variables out of output_df.columns
+# For a description of a variable var, see descriptions_dict[var]. For the unit, see units_dict[var]
+chosen_vars = ["tSky", "tOut", "tTunnel", "tSoil"]
+
+plt.figure(figsize=(10, 6))
+
+for var in chosen_vars:
+    plt.plot(output_3["Time"], output_3[var], label=var)
+
+plt.xlabel("Time (s)")
+plt.ylabel("Temperature (°C)")
+plt.title("Simulation results")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# %%
+""" Zoom in """
+zoomed_output = output_3
+zoomed_output.columns = variable_names
+zoomed_output = zoomed_output[zoomed_output["Time"] < 16 * 24 * 60 * 60]
+
+chosen_vars = ["tTunnel"]
+
+plt.figure(figsize=(10, 6))
+
+for var in chosen_vars:
+    plt.plot(zoomed_output["Time"], zoomed_output[var], '-o', label=var)
+
+plt.xlabel("Time (s)")
+plt.ylabel("Temperature (°C)")
+plt.title("tTunnel")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+plt.figure(figsize=(10, 6))
+
+plt.plot(zoomed_output["Time"], zoomed_output["iSun"], '-o', label="iSun")
+
+plt.xlabel("Time (s)")
+plt.ylabel("Radiation (W/m2)")
+plt.title("iSun")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
 
 # %%
