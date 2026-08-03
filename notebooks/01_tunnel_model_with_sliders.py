@@ -14,35 +14,158 @@
 # ---
 
 # %% [markdown]
-# Outline
-# 1. Excel exercise of simple model - interactive formula
-# 2. Build the exercise in GreenLight
-#
+# # 1. Interactive greenhouse "tunnel" model
 #
 
 # %% [markdown]
-# ### Imports - can ignore
+# Outline
+# - Eq 3.9 textbook
+# - Textbook chapter 3
+# - We will make a slider thingie
+# - Recommend to have the TOC on the side
+
+# %% [markdown]
+# ## 1.1 Imports
+
+# %% [markdown]
+# The following code block defines imports that will be used later in this notebook. There's no need to read through this code, simply run it and move to the next section
 
 # %%
-### imports needed for running the code
+""" 
+Imports needed for running the code
+"""
 import ipywidgets as widgets
 from IPython.display import display, Math
 
 
 # %% [markdown]
-# ## Static tunnel model with sliders
+# ## 1.2 Defining model variables
 
 # %% [markdown]
-# ### Defining model variabls
+# - Create a Python dictionary (`dict`) that defines the variables, we will call this dictionary `sliders_vars`
+# - `sliders_vars` is a dictionary of dictionaries
+# - Each variable will be an entry in the dictionary `sliders_vars`, with the key as the variable name, and the value as a dictionary
+# - For each value, we define:
+#     - Description
+#     - Unit
+#     - Reference
+#     - Value
+#     - Min
+#     - Max
+#     - Step
+
+# %% [markdown]
+# ### 1.2.1 Example
+# In the code block below we start defining `sliders_vars`, following the text after Eq 3.9. We define: 
+# - **𝜏** (Greek letter tau)
+# - $I_{sun}$ , which we write in code as `iSun`
+# - $F_{tunnel,sky}$ , which we write in code as `fTunnelSky`
+#
+# Where:
+# - The **description** is taken directly from the text under Eq. 3.9
+# - The **reference** is taken from the text under Eq. 3.9. If no reference is given, we refer simply to Eq. 3.9
+# - The **value** is an estimate or example for a reasonable value. For example, for **𝜏**, Table 3.1 gives an indication
+# - The **min** and **max** values are values that will be displayed in the sliders. We choose values that are reasonabl or interesting to consider
+# - **step** is the step size that the slider allows. For example, a value of 5 and a step size of 0.1, means value like 4.9 and 5.1 will be used, but not 4.91 and 5.11.
+#
+# **Note**: ~~~something about converting equations like $I_{sun}$ to code like `iSun`
 
 # %%
-# Define tunnel model variables to be used in sliders
+""" 
+Example 1.2.1
+Define tunnel model variables to be used in sliders 
+"""
 sliders_vars = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.2",
-        "value": 0.7,
+        "value": 0.8,
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+    },
+    "iSun": {
+        "name": "iSun",
+        "description": "Solar radiation",
+        "unit": "W/m2",
+        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "value": 700,
+        "min": 0,
+        "max": 1500,
+        "step": 10
+    },
+    "fTunnelSky": {
+        "description": "View factor between tunnel and sky",
+        "unit": "-",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "value": 0.5,
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+    }
+}
+
+# %% [markdown]
+# ### 1.2.2 Exercise
+#
+# In the following code block, complete the definition of `sliders_vars` as above, to include all variables described in Equation 3.9.
+#
+# **Be sure to check that you have defined *all* the variables of Equation 3.9!**
+
+# %%
+""" 
+Exercise 1.2.2
+Define tunnel model variables to be used in sliders 
+"""
+sliders_vars = {
+    "tau": {
+        "description": "Transmissivity (hemispherical) of the cover for sun radiation",
+        "unit": "-",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
+        "value": 0.8,
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+    },
+    "iSun": {
+        "name": "iSun",
+        "description": "Solar radiation",
+        "unit": "W/m2",
+        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "value": 700,
+        "min": 0,
+        "max": 1500,
+        "step": 10
+    },
+    "fTunnelSky": {
+        "description": "View factor between tunnel and sky",
+        "unit": "-",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "value": 0.5,
+        "min": 0,
+        "max": 1,
+        "step": 0.01
+    },
+    "continue here...": 
+}
+
+# %% [markdown]
+# #### 1.2.2 Solution
+#
+# The following code block is a possible solution to **Exercise 1.2.2**
+
+# %%
+""" 
+Solution for Exercise 1.2.2
+Define tunnel model variables to be used in sliders 
+"""
+sliders_vars = {
+    "tau": {
+        "description": "Transmissivity (hemispherical) of the cover for sun radiation",
+        "unit": "-",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
+        "value": 0.8,
         "min": 0,
         "max": 1,
         "step": 0.01
@@ -83,6 +206,15 @@ sliders_vars = {
         "min": 0,
         "max": 20,
         "step": 0.1
+    },
+    "tTunnel": {
+        "description": "Temperature of the unventilated greenhouse",
+        "unit": "°C",
+        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "value": 25,
+        "min": -50,
+        "max": 50,
+        "step": 1
     },
     "tSky": {
         "description": "Apparent temperature of the sky (depends, among other things, on cloudiness)",
@@ -160,7 +292,56 @@ sliders_vars = {
 
 
 # %% [markdown]
-# ### Defining calculation of tTunnel
+# ### 1.2.3 Reflection
+#
+# Before moving forward, stop to reflect on the following questions:
+# - How was the experience of converting the equation from a textbook to code?
+# - Were all variables clearly defined in the textbook?
+# - Was it easy to choose representative values and ranges?
+
+# %% [markdown]
+# ## 1.3 Defining calculation of tTunnel
+
+# %% [markdown]
+# - The goal is to see what happens to tTunnel when other things change
+# - Need to calculate tTunnel
+
+# %% [markdown]
+# ### 1.3.1 Exercise
+#
+# This is an exercise in algebra:
+#
+# **Solve Equation 3.9 for $T_{tunnel}$.**
+#
+# In other words, rearrange Equation 3.9 so that $T_{tunnel}$ is isolated.
+#
+# ~~ links to how this can be done
+
+# %% [markdown]
+# #### 1.3.1 Solution
+#
+#
+
+# %% [markdown]
+# We start with Eqaution 3.9:
+#
+# $$
+# \begin{align}
+# \tau I_{sun} &= F_{tunnel,sky} \varepsilon_{cover} \alpha_R \left( T_{tunnel} - T_{sky} \right) + \frac{A_{cover}}{A_{soil}} \alpha_{cover} \left( T_{tunnel} - T_{out} \right)\\
+# &+F_{tunnel,soil} \varepsilon_{soil} \alpha_R \left( T_{tunnel} - T_{soil} \right) +\alpha_{soil} \left( T_{tunnel} - T_{soil} \right)\\
+# \end{align}
+# $$
+#
+# ~~ to do
+
+# %% [markdown] jp-MarkdownHeadingCollapsed=true
+# ## 1.4 Setting up the interactive model
+#
+#
+#
+
+# %% [markdown]
+# Explain code below, stress that the Python details are not very important
 
 # %%
 # Define calculation of tTunnel
@@ -183,28 +364,28 @@ def calc_tTunnel(tau, iSun, fTunnelSky, epsCover, alphaR,
 
 # Define displayed equation
 equation_latex = r"""
-tTunnel =
+\texttt{tTunnel} =
 \frac{
-\tau \times \mathrm{iSun}
+\tau \times \texttt{iSun}
 +
-\mathrm{fTunnelSky}\times\mathrm{epsCover}\times\mathrm{alphaR}\times\mathrm{tSky}
+\texttt{fTunnelSky}\times\texttt{epsCover}\times\texttt{alphaR}\times\texttt{tSky}
 +
-\mathrm{aCoverOverSoil}\times\mathrm{alphaCover}\times\mathrm{tOut}
+\texttt{aCoverOverSoil}\times\texttt{alphaCover}\times\texttt{tOut}
 +
 \mathrm{tSoil}\times
 \left(
-\mathrm{fTunnelSoil}\times\mathrm{epsSoil}\times\mathrm{alphaR}
+\texttt{fTunnelSoil}\times\texttt{epsSoil}\times\texttt{alphaR}
 +
-\mathrm{alphaSoil}
+\texttt{alphaSoil}
 \right)
 }{
-\mathrm{fTunnelSky}\times\mathrm{epsCover}\times\mathrm{alphaR}
+\texttt{fTunnelSky}\times\texttt{epsCover}\times\texttt{alphaR}
 +
-\mathrm{aCoverOverSoil}\times\mathrm{alphaCover}
+\texttt{aCoverOverSoil}\times\texttt{alphaCover}
 +
-\mathrm{fTunnelSoil}\times\mathrm{epsSoil}\times\mathrm{alphaR}
+\texttt{fTunnelSoil}\times\texttt{epsSoil}\times\texttt{alphaR}
 +
-\mathrm{alphaSoil}
+\texttt{alphaSoil}
 }
 """
 
@@ -264,8 +445,8 @@ def dynamic_display(tau, iSun, fTunnelSky, epsCover, alphaR,
     return substituted_equation
 
 
-# %% [markdown] jp-MarkdownHeadingCollapsed=true
-# ### Set up widget - can ignore
+# %% [markdown]
+# Explain code below, stress that it can be skipped
 
 # %%
 # Create header row
@@ -418,13 +599,33 @@ def display_tTunnel_widget():
 
 
 # %% [markdown]
-# ### Display widget
+# ## 1.5 Interactive greenhouse "tunnel" model
+
+# %% [markdown]
+# The following code block displays the sliders widget
+#
+# Depending on your screen resolution, it may be hard to see everything so:
+# - zoom out in your browser
+# - go for zen mode
+# - gor for full screen
+# - click on the left hand side of the display (collapse output)
 
 # %%
 display_tTunnel_widget()
 
 # %% [markdown]
+# ### 1.5.1 Exercise
+# - For each variable, does it go together with tTunnel (incerase -> increase) or the other way around
+# - Is this in line with what you expect
+# - Are there variables that have a stronger influence than others?
+# - Are there variables that have an optimum behaviour
+# - Do the answers above (for each variable) depend on the values of other variables?
+
+# %% [markdown]
 # ## Next step
+
+# %% [markdown]
+# Just describe the next step
 
 # %%
 # Define model variables

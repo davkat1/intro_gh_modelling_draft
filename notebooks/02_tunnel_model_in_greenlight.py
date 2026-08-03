@@ -31,6 +31,7 @@ warnings.filterwarnings("ignore")
 import os
 
 from IPython.display import display
+import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import greenlight
@@ -315,14 +316,16 @@ zoomed_output = output_2
 zoomed_output.columns = variable_names
 zoomed_output = zoomed_output[zoomed_output["Time"] < 16 * 24 * 60 * 60]
 
-chosen_vars = ["tTunnel"]
+chosen_vars = ["tTunnel", "tOut"]
 
 plt.figure(figsize=(10, 6))
 
 for var in chosen_vars:
-    plt.plot(zoomed_output["Time"], zoomed_output[var], '-o', label=var)
+    plt.plot((zoomed_output["Time"]/3600)%24, zoomed_output[var], '-o', label=var)
 
-plt.xlabel("Time (s)")
+plt.xlabel("Time of day (hour)")
+plt.xticks(np.arange(0, 25, step=1))
+plt.xlim([0, 24])
 plt.ylabel("Temperature (°C)")
 plt.title("tTunnel")
 plt.legend()
@@ -331,10 +334,12 @@ plt.show()
 
 plt.figure(figsize=(10, 6))
 
-plt.plot(zoomed_output["Time"], zoomed_output["iSun"], '-o', label="iSun")
+plt.plot((zoomed_output["Time"]/3600)%24, zoomed_output["iSun"], '-o', label="iSun")
 
-plt.xlabel("Time (s)")
+plt.xlabel("Time of day (hour)")
 plt.ylabel("Radiation (W/m2)")
+plt.xticks(np.arange(0, 25, step=1))
+plt.xlim([0, 24])
 plt.title("iSun")
 plt.legend()
 plt.grid(True)
@@ -409,27 +414,31 @@ zoomed_output = output_3
 zoomed_output.columns = variable_names
 zoomed_output = zoomed_output[zoomed_output["Time"] < 16 * 24 * 60 * 60]
 
-chosen_vars = ["tTunnel"]
+chosen_vars = ["tTunnel", "tOut"]
 
 plt.figure(figsize=(10, 6))
 
 for var in chosen_vars:
-    plt.plot(zoomed_output["Time"], zoomed_output[var], '-o', label=var)
+    plt.plot((zoomed_output["Time"]/3600)%24, zoomed_output[var], '-o', label=var)
 
 plt.xlabel("Time (s)")
 plt.ylabel("Temperature (°C)")
 plt.title("tTunnel")
+plt.xticks(np.arange(0, 25, step=1))
+plt.xlim([0, 24])
 plt.legend()
 plt.grid(True)
 plt.show()
 
 plt.figure(figsize=(10, 6))
 
-plt.plot(zoomed_output["Time"], zoomed_output["iSun"], '-o', label="iSun")
+plt.plot((zoomed_output["Time"]/3600)%24, zoomed_output["iSun"], '-o', label="iSun")
 
 plt.xlabel("Time (s)")
 plt.ylabel("Radiation (W/m2)")
 plt.title("iSun")
+plt.xticks(np.arange(0, 25, step=1))
+plt.xlim([0, 24])
 plt.legend()
 plt.grid(True)
 plt.show()
