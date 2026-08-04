@@ -25,7 +25,7 @@
 # - Recommend to have the TOC on the side
 
 # %% [markdown]
-# ## 2.1 Imports
+# ## 2.1 Imports for Chapter 2
 
 # %% [markdown]
 # The following code block defines imports that will be used later in this notebook. There's no need to read through this code, simply run it and move to the next section
@@ -39,7 +39,7 @@ from IPython.display import display, Math
 
 
 # %% [markdown]
-# ## 2.2 Defining model variables
+# ## 2.2 Defining the "tunnel" model variables
 
 # %% [markdown]
 # - Create a Python dictionary (`dict`) that defines the variables, we will call this dictionary `sliders_vars`
@@ -55,7 +55,7 @@ from IPython.display import display, Math
 #     - Step
 
 # %% [markdown]
-# ### 2.2.1 Example
+# ### 2.2.1 Example: some tunnel model variables
 # In the code block below we start defining `sliders_vars`, following the text after Eq 3.9. We define: 
 # - **𝜏** (Greek letter tau)
 # - $I_{sun}$ , which we write in code as `iSun`
@@ -107,7 +107,7 @@ sliders_vars = {
 }
 
 # %% [markdown]
-# ### 2.2.2 Exercise
+# ### 2.2.2 Exercise: completeing the tunnel model variables
 #
 # In the following code block, complete the definition of `sliders_vars` as above, to include all variables described in Equation 3.9.
 #
@@ -292,7 +292,7 @@ sliders_vars = {
 
 
 # %% [markdown]
-# ### 2.2.3 Reflection
+# ### 2.2.3 Reflection: constructing the tunnel model
 #
 # Before moving forward, stop to reflect on the following questions:
 # - How was the experience of converting the equation from a textbook to code?
@@ -300,14 +300,14 @@ sliders_vars = {
 # - Was it easy to choose representative values and ranges?
 
 # %% [markdown]
-# ## 2.3 Defining calculation of tTunnel
+# ## 2.3 Defining calculation of `tTunnel`
 
 # %% [markdown]
 # - The goal is to see what happens to tTunnel when other things change
 # - Need to calculate tTunnel
 
 # %% [markdown]
-# ### 2.3.1 Exercise
+# ### 2.3.1 Exercise: algebraically solving for `tTunnel`
 #
 # This is an exercise in algebra:
 #
@@ -366,7 +366,7 @@ def calc_tTunnel(tau, iSun, fTunnelSky, epsCover, alphaR,
 equation_latex = r"""
 \texttt{tTunnel} =
 \frac{
-\tau \times \texttt{iSun}
+\texttt{tau} \times \texttt{iSun}
 +
 \texttt{fTunnelSky}\times\texttt{epsCover}\times\texttt{alphaR}\times\texttt{tSky}
 +
@@ -614,7 +614,7 @@ def display_tTunnel_widget():
 display_tTunnel_widget()
 
 # %% [markdown]
-# ### 2.5.1 Exercise
+# ### 2.5.1 Exercise: analyzing the tunnel model
 # - For each variable, does it go together with tTunnel (incerase -> increase) or the other way around
 # - Is this in line with what you expect
 # - Are there variables that have a stronger influence than others?
@@ -745,6 +745,3 @@ tunnel_model.update({
 })
 
 # %%
-
-# %%
-import green

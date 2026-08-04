@@ -14,17 +14,21 @@
 # ---
 
 # %% [markdown]
-# Outline
-# 1. Excel exercise of simple model - interactive formula
-# 2. Build the exercise in GreenLight
-#
-#
+# # 3. Implementing the "tunnel" model in the GreenLight platform
 
 # %% [markdown]
-# ### Imports - can ignore
+# ## 3.1 Imports for Chapter 3
+
+# %% [markdown]
+# The following code block defines imports that will be used later in this notebook. There's no need to read through this code, simply run it and move to the next section
 
 # %%
-### Imports needed for running the code and other general setup
+""" 
+Imports needed for running the code
+"""
+# Ignore warnings during ODE solving
+# Typically such warnings should be checked,
+# but for the current exercise it is not important
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -38,14 +42,107 @@ import greenlight
 
 
 # %% [markdown]
-# ## Tunnel model in GreenLight
+# ## 3.2 Defining the tunnel model in GreenLight
 
 # %% [markdown]
-# ### Defining the model
+# - Similar to the previous exercise, with some differences
+# - Again we create a dictionary of dictionaries
+# - Each variable will be an entry in the dictionary `tunnel_def`, with the key as the variable name, and the value as a dictionary
+# - For each value, we define:
+#     - Description - same as in the previous exercise
+#     - Unit - same as in the previous exercise
+#     - Reference - same as in the previous exercise
+#     - Definition - similar to "value" in the previous exercise
+#     - Type - either "const", "aux", "state", or "input" (see more below)
+
+# %% [markdown]
+# ### 3.2.1 Example: some tunnel model variables in the GreenLight format
+# In the code block below we start defining `tunnel_def`, again following the text after Eq 3.9. We define: 
+# - `tau` 
+# - `iSun`
+# - `fTunnelSky`
+#
+# Where:
+# - The **description** is taken directly from the text under Eq. 3.9 (same as previous lesson)
+# - The **reference** is taken from the text under Eq. 3.9. If no reference is given, we refer simply to Eq. 3.9 (same as previous lesson)
+# - The **definition** is an estimate or example for a reasonable value. For example, for **𝜏**, Table 3.1 gives an indication (same as `value` in previous lesson)
+# - **type** - ~~~add some information about this here
 
 # %%
-# Define model variables
-tunnel_model = {
+""" 
+Example 3.2.1
+Define tunnel model for running with the GreenLight platform
+"""
+tunnel_def = {
+    "tau": {
+        "description": "Transmissivity (hemispherical) of the cover for sun radiation",
+        "unit": "-",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
+        "definition": "0.7",
+        "type": "const"
+    },
+    "iSun": {
+        "description": "Solar radiation",
+        "unit": "W/m2",
+        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "definition": "700",
+        "type": "input"
+    },
+    "fTunnelSky": {
+        "description": "View factor between tunnel and sky",
+        "unit": "-",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "definition": "0.5",
+        "type": "const"
+    }
+}
+
+# %% [markdown]
+# ### 3.2.2 Exercise: completing the tunnel model variables in the GreenLight format
+#
+# In the following code block, complete the definition of `tunnel_def` as above, to include all variables described in Equation 3.9. **You may skip the variable `tTunnel` for now, we will deal with that one in the next step**.
+
+# %%
+""" 
+Exercise 3.2.2
+Define tunnel model for running with the GreenLight platform
+"""
+tunnel_def = {
+    "tau": {
+        "description": "Transmissivity (hemispherical) of the cover for sun radiation",
+        "unit": "-",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
+        "definition": "0.7",
+        "type": "const"
+    },
+    "iSun": {
+        "description": "Solar radiation",
+        "unit": "W/m2",
+        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "definition": "700",
+        "type": "input"
+    },
+    "fTunnelSky": {
+        "description": "View factor between tunnel and sky",
+        "unit": "-",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "definition": "0.5",
+        "type": "const"
+    },
+    "continue here...":
+}
+
+# %% [markdown]
+# #### 3.2.2 Solution
+#
+# The following code block is a possible solution to **Exercise 3.2.2**
+
+# %%
+""" 
+Solution 3.2.1
+Define tunnel model for running with the GreenLight platform
+"""
+tunnel_def = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
@@ -139,8 +236,18 @@ tunnel_model = {
     }
 }
 
+# %% [markdown]
+# ## 3.3 Defining `tTunnel` and adding it to the model definition
+
+# %% [markdown]
+# - we define tTunnel based on the previous calculation \ algebraic solution
+# - Explain what happens below
+
 # %%
-tunnel_model["tTunnel"] = {
+"""
+Add the variable tTunnel to the tunnel model definition tunnel_def
+"""
+tunnel_def["tTunnel"] = {
         "description": "Temperature of the unventilated greenhouse",
         "unit": "°C",
         "reference": "Stanghellini et al. (2024), Eq. 3.9 (rearranged to isolate tTunnel)",
@@ -158,22 +265,43 @@ tunnel_model["tTunnel"] = {
     ")"
     }
 
+# %% [markdown]
+# ## 3.4 Setting the model definition as GreenLight model
+
+# %% [markdown]
+# Explanation of the code below
+
 # %%
 mdl = greenlight.GreenLight(
     base_path=os.getcwd(), 
-    input_prompt=tunnel_model, 
+    input_prompt=tunnel_def, 
     output_path=os.path.join("output", "output.csv")
 )
+
+# %% [markdown]
+# ## 3.5 Running the model in GreenLight
+
+# %% [markdown]
+# Explanation of the code below
 
 # %%
 mdl.run()
 
+# %% [markdown]
+# ## 3.6 Displaying model output in a table
+
+# %% [markdown]
+# Explanation of the code below
+
 # %%
-"""Load simulation result"""
+"""
+Load simulation result
+"""
 output_df = pd.read_csv(os.path.join("output", "output.csv"), header=[0,1,2], low_memory=False)
 
 display(
     output_df.style
+      .hide(axis="index")
       .format("{:.2f}")
       .set_properties(**{"text-align": "left"})
       .set_table_styles([
@@ -181,51 +309,68 @@ display(
       ])
 )
 
+# %% [markdown]
+# Explanation of the output above
+
+# %% [markdown]
+# ## 3.7 Displaying model output in a graph
+
+# %% [markdown]
+# Explanation of the code below
+
 # %%
-"""Make graphs"""
-variable_names = output_df.columns.get_level_values(0)
-descriptions = output_df.columns.get_level_values(1)
-units = output_df.columns.get_level_values(2)
+"""
+Make graphs
+"""
 
-# Create dictionaries for descriptions and units
-descriptions_dict = dict(zip(variable_names, descriptions))
-units_dict = dict(zip(variable_names, units))
+def display_output(output_df, chosen_vars, titles, ylabels, line_style):
+    for vars_to_plot, title, ylabel in zip(chosen_vars, titles, ylabels):
+        plt.figure(figsize=(10, 6))
+        
+        for var in vars_to_plot:
+            plt.plot(output_df["Time"], output_df[var], line_style, label=var)
+        
+        plt.xlabel("Time (s)")
+        plt.ylabel(ylabel)
+        plt.title(title)
+        plt.legend()
+        plt.grid(True)
+        plt.show()
 
-"""Present results in a graph graphs"""
-# Choose variables out of output_df.columns
-# For a description of a variable var, see descriptions_dict[var]. For the unit, see units_dict[var]
-chosen_vars = ["tSky", "tOut", "tSoil", "tTunnel"]
+def model_table(mdl):
+    display(pd.DataFrame(mdl.variables.items(), columns=["Variable", "Definition"])
+            .style
+                .hide(axis="index")
+                .set_properties(**{"text-align": "left", "font-family": "monospace"})
+                .set_table_styles([
+                    {"selector": "th", "props": [("text-align", "left")]}
+              ])
+        )
 
-plt.figure(figsize=(10, 6))
+display_output(output_df, [["tTunnel", "tOut",  "tSoil", "tSky"], ["iSun"]], ["Temperatures", "Radiation"], ["°C", "W/m2"], '-o')
+model_table(mdl)
 
-for var in chosen_vars:
-    plt.plot(output_df["Time"], output_df[var], label=var)
+# %% [markdown]
+# Explanation of the output above
 
-plt.xlabel("Time (s)")
-plt.ylabel("Temperature (°C)")
-plt.title("Simulation results")
-plt.legend()
-plt.grid(True)
-plt.show()
+# %% [markdown]
+# ## 3.8 Adding variable weather input
+
+# %% [markdown]
+# Explain what's happening here, also document where the weather data is coming from
 
 # %%
 # New model
 options = {
     "options": {
-        "t_start": str(15 * 24 * 60 * 60),
-        "t_end": str(25 * 24 * 60 * 60),
+        "t_start":"0",
+        "t_end": str(16 * 24 * 60 * 60),
         "output_step": "300",
         "t_eval": "300"
     }
 }
 
-tunnel_model["Time"] = {
-      "unit" : "s",
-      "type" : "time",
-      "description" : "Time since start of data"
-   }
-
-tunnel_model["dummy"] = {
+tunnel_def["dummy"] = {
         "description": "Dummy variable",
         "unit": "-",
         "reference": "Used to get the model going",
@@ -234,215 +379,36 @@ tunnel_model["dummy"] = {
         "init": "0"
     }
 
-tunnel_model["tTunnel"] = {
-        "description": "Temperature of the unventilated greenhouse",
-        "unit": "°C",
-        "reference": "Stanghellini et al. (2024), Eq. 3.9 (rearranged to isolate tTunnel)",
-        "type": "aux",
-        "definition": "(" \
-        "tau * iSun " \
-        "+ fTunnelSky * epsCover * alphaR * tSky " \
-        "+ aCoverOverSoil * alphaCover * tOut " \
-        "+ tSoil * (fTunnelSoil * epsSoil * alphaR + alphaSoil)" \
-    ") / ( " \
-        "fTunnelSky * epsCover * alphaR " \
-        "+ aCoverOverSoil * alphaCover " \
-        "+ fTunnelSoil * epsSoil * alphaR " \
-        "+ alphaSoil " \
-    ")"
-    }
-
 mdl_2 = greenlight.GreenLight(
     base_path=os.getcwd(), 
-    input_prompt=[tunnel_model, os.path.join("input", "example_weather.csv"), options], 
+    input_prompt=[tunnel_def, os.path.join("input", "example_weather.csv"), options], 
     output_path=os.path.join("output", "output_2.csv")
 )
 mdl_2.run()
 
 # %%
-"""Load simulation result"""
+"""
+Make graphs
+"""
+
+# Load simulation result
 output_2 = pd.read_csv(os.path.join("output", "output_2.csv"), header=[0,1,2], low_memory=False)
 
-display(
-    output_2.style
-      .format("{:.2f}")
-      .set_properties(**{"text-align": "left"})
-      .set_table_styles([
-          {"selector": "th", "props": [("text-align", "left")]}
-      ])
-)
+display_output(output_2, [["tTunnel", "tOut",  "tSoil", "tSky"], ["iSun"]], ["Temperatures", "Radiation"], ["°C", "W/m2"], '-')
+model_table(mdl_2)
 
-# %%
-"""Make graphs"""
-variable_names = output_2.columns.get_level_values(0)
-descriptions = output_2.columns.get_level_values(1)
-units = output_2.columns.get_level_values(2)
+# %% [markdown]
+# Exercise - make a new weather file, modify it, run the sim with it
 
-# Create dictionaries for descriptions and units
-descriptions_dict = dict(zip(variable_names, descriptions))
-units_dict = dict(zip(variable_names, units))
+# %% [markdown]
+# ## Reflection
 
-"""Present results in a graph graphs"""
-# Choose variables out of output_df.columns
-# For a description of a variable var, see descriptions_dict[var]. For the unit, see units_dict[var]
-chosen_vars = ["tSky", "tOut", "tTunnel", "tSoil"]
+# %% [markdown]
+# To do
 
-plt.figure(figsize=(10, 6))
+# %% [markdown]
+# ## Next step
 
-for var in chosen_vars:
-    plt.plot(output_2["Time"], output_2[var], label=var)
-
-plt.xlabel("Time (s)")
-plt.ylabel("Temperature (°C)")
-plt.title("Simulation results")
-plt.legend()
-plt.grid(True)
-plt.show()
-
-plt.figure(figsize=(10, 6))
-
-plt.plot(output_2["Time"], output_2["iSun"], label="iSun")
-
-plt.xlabel("Time (s)")
-plt.ylabel("iSun (W/m2)")
-plt.title("Simulation results")
-plt.legend()
-plt.grid(True)
-plt.show()
-
-# %%
-""" Zoom in """
-zoomed_output = output_2
-zoomed_output.columns = variable_names
-zoomed_output = zoomed_output[zoomed_output["Time"] < 16 * 24 * 60 * 60]
-
-chosen_vars = ["tTunnel", "tOut"]
-
-plt.figure(figsize=(10, 6))
-
-for var in chosen_vars:
-    plt.plot((zoomed_output["Time"]/3600)%24, zoomed_output[var], '-o', label=var)
-
-plt.xlabel("Time of day (hour)")
-plt.xticks(np.arange(0, 25, step=1))
-plt.xlim([0, 24])
-plt.ylabel("Temperature (°C)")
-plt.title("tTunnel")
-plt.legend()
-plt.grid(True)
-plt.show()
-
-plt.figure(figsize=(10, 6))
-
-plt.plot((zoomed_output["Time"]/3600)%24, zoomed_output["iSun"], '-o', label="iSun")
-
-plt.xlabel("Time of day (hour)")
-plt.ylabel("Radiation (W/m2)")
-plt.xticks(np.arange(0, 25, step=1))
-plt.xlim([0, 24])
-plt.title("iSun")
-plt.legend()
-plt.grid(True)
-plt.show()
-
-
-
-# %%
-# A guess at capacity:
-# The air has a capacity of 1200 J/m3/K (Stanghellini textbook)
-# Soil has a capacity of 1.73e6 J/m3/K (Vanthoor)
-# Per m2 assume we consider 2.5 m of air and 0.1 m of soil, that gives:
-# 1200x(2.5/2.6) + 1.73e6 (0.1/2.6) = 1153 + 66538 = 67691
-
-
-dynamic_model = tunnel_model
-dynamic_model["tTunnel"] = {
-        "description": "Temperature of the unventilated greenhouse",
-        "unit": "°C",
-        "reference": "Stanghellini et al. (2024), Eq. 3.9 (rearranged to isolate tTunnel)",
-        "type": "state",
-        "init": "8",
-        "definition": "1/(67691)*(" \
-        "tau * iSun " \
-        "- fTunnelSky * epsCover * alphaR * (tTunnel - tSky) " \
-        "- aCoverOverSoil * alphaCover * (tTunnel - tOut) " \
-        "- fTunnelSoil * epsSoil * alphaR * (tTunnel - tSoil) " \
-        "- alphaSoil * (tTunnel - tSoil)"
-    ")"
-    }
-
-mdl_3 = greenlight.GreenLight(
-    base_path=os.getcwd(), 
-    input_prompt=[tunnel_model, os.path.join("input", "example_weather.csv"), options], 
-    output_path=os.path.join("output", "output_3.csv")
-)
-mdl_3.run()
-
-# %%
-"""Load simulation result"""
-output_3 = pd.read_csv(os.path.join("output", "output_3.csv"), header=[0,1,2], low_memory=False)
-
-"""Make graphs"""
-variable_names = output_3.columns.get_level_values(0)
-descriptions = output_3.columns.get_level_values(1)
-units = output_3.columns.get_level_values(2)
-
-# Create dictionaries for descriptions and units
-descriptions_dict = dict(zip(variable_names, descriptions))
-units_dict = dict(zip(variable_names, units))
-
-"""Present results in a graph graphs"""
-# Choose variables out of output_df.columns
-# For a description of a variable var, see descriptions_dict[var]. For the unit, see units_dict[var]
-chosen_vars = ["tSky", "tOut", "tTunnel", "tSoil"]
-
-plt.figure(figsize=(10, 6))
-
-for var in chosen_vars:
-    plt.plot(output_3["Time"], output_3[var], label=var)
-
-plt.xlabel("Time (s)")
-plt.ylabel("Temperature (°C)")
-plt.title("Simulation results")
-plt.legend()
-plt.grid(True)
-plt.show()
-
-# %%
-""" Zoom in """
-zoomed_output = output_3
-zoomed_output.columns = variable_names
-zoomed_output = zoomed_output[zoomed_output["Time"] < 16 * 24 * 60 * 60]
-
-chosen_vars = ["tTunnel", "tOut"]
-
-plt.figure(figsize=(10, 6))
-
-for var in chosen_vars:
-    plt.plot((zoomed_output["Time"]/3600)%24, zoomed_output[var], '-o', label=var)
-
-plt.xlabel("Time (s)")
-plt.ylabel("Temperature (°C)")
-plt.title("tTunnel")
-plt.xticks(np.arange(0, 25, step=1))
-plt.xlim([0, 24])
-plt.legend()
-plt.grid(True)
-plt.show()
-
-plt.figure(figsize=(10, 6))
-
-plt.plot((zoomed_output["Time"]/3600)%24, zoomed_output["iSun"], '-o', label="iSun")
-
-plt.xlabel("Time (s)")
-plt.ylabel("Radiation (W/m2)")
-plt.title("iSun")
-plt.xticks(np.arange(0, 25, step=1))
-plt.xlim([0, 24])
-plt.legend()
-plt.grid(True)
-plt.show()
-
-
-
-# %%
+# %% [markdown]
+# - Explain why this isn't good enough
+# - Save the def file for future use
