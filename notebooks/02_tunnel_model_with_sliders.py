@@ -14,7 +14,7 @@
 # ---
 
 # %% [markdown]
-# # 1. Interactive greenhouse "tunnel" model
+# # 2. Interactive greenhouse "tunnel" model
 #
 
 # %% [markdown]
@@ -25,7 +25,7 @@
 # - Recommend to have the TOC on the side
 
 # %% [markdown]
-# ## 1.1 Imports
+# ## 2.1 Imports
 
 # %% [markdown]
 # The following code block defines imports that will be used later in this notebook. There's no need to read through this code, simply run it and move to the next section
@@ -39,7 +39,7 @@ from IPython.display import display, Math
 
 
 # %% [markdown]
-# ## 1.2 Defining model variables
+# ## 2.2 Defining model variables
 
 # %% [markdown]
 # - Create a Python dictionary (`dict`) that defines the variables, we will call this dictionary `sliders_vars`
@@ -55,7 +55,7 @@ from IPython.display import display, Math
 #     - Step
 
 # %% [markdown]
-# ### 1.2.1 Example
+# ### 2.2.1 Example
 # In the code block below we start defining `sliders_vars`, following the text after Eq 3.9. We define: 
 # - **𝜏** (Greek letter tau)
 # - $I_{sun}$ , which we write in code as `iSun`
@@ -72,7 +72,7 @@ from IPython.display import display, Math
 
 # %%
 """ 
-Example 1.2.1
+Example 2.2.1
 Define tunnel model variables to be used in sliders 
 """
 sliders_vars = {
@@ -107,7 +107,7 @@ sliders_vars = {
 }
 
 # %% [markdown]
-# ### 1.2.2 Exercise
+# ### 2.2.2 Exercise
 #
 # In the following code block, complete the definition of `sliders_vars` as above, to include all variables described in Equation 3.9.
 #
@@ -115,7 +115,7 @@ sliders_vars = {
 
 # %%
 """ 
-Exercise 1.2.2
+Exercise 2.2.2
 Define tunnel model variables to be used in sliders 
 """
 sliders_vars = {
@@ -151,13 +151,13 @@ sliders_vars = {
 }
 
 # %% [markdown]
-# #### 1.2.2 Solution
+# #### 2.2.2 Solution
 #
-# The following code block is a possible solution to **Exercise 1.2.2**
+# The following code block is a possible solution to **Exercise 2.2.2**
 
 # %%
 """ 
-Solution for Exercise 1.2.2
+Solution for Exercise 2.2.2
 Define tunnel model variables to be used in sliders 
 """
 sliders_vars = {
@@ -292,7 +292,7 @@ sliders_vars = {
 
 
 # %% [markdown]
-# ### 1.2.3 Reflection
+# ### 2.2.3 Reflection
 #
 # Before moving forward, stop to reflect on the following questions:
 # - How was the experience of converting the equation from a textbook to code?
@@ -300,14 +300,14 @@ sliders_vars = {
 # - Was it easy to choose representative values and ranges?
 
 # %% [markdown]
-# ## 1.3 Defining calculation of tTunnel
+# ## 2.3 Defining calculation of tTunnel
 
 # %% [markdown]
 # - The goal is to see what happens to tTunnel when other things change
 # - Need to calculate tTunnel
 
 # %% [markdown]
-# ### 1.3.1 Exercise
+# ### 2.3.1 Exercise
 #
 # This is an exercise in algebra:
 #
@@ -318,7 +318,7 @@ sliders_vars = {
 # ~~ links to how this can be done
 
 # %% [markdown]
-# #### 1.3.1 Solution
+# #### 2.3.1 Solution
 #
 #
 
@@ -334,8 +334,8 @@ sliders_vars = {
 #
 # ~~ to do
 
-# %% [markdown] jp-MarkdownHeadingCollapsed=true
-# ## 1.4 Setting up the interactive model
+# %% [markdown]
+# ## 2.4 Setting up the interactive model
 #
 #
 #
@@ -599,7 +599,7 @@ def display_tTunnel_widget():
 
 
 # %% [markdown]
-# ## 1.5 Interactive greenhouse "tunnel" model
+# ## 2.5 Interactive greenhouse "tunnel" model
 
 # %% [markdown]
 # The following code block displays the sliders widget
@@ -614,7 +614,7 @@ def display_tTunnel_widget():
 display_tTunnel_widget()
 
 # %% [markdown]
-# ### 1.5.1 Exercise
+# ### 2.5.1 Exercise
 # - For each variable, does it go together with tTunnel (incerase -> increase) or the other way around
 # - Is this in line with what you expect
 # - Are there variables that have a stronger influence than others?
