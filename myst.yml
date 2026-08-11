@@ -21,6 +21,7 @@ project:
     - file: notebooks/03_tunnel_model_in_greenlight.ipynb
     - file: notebooks/04_from_steady_state_to_dynamic_model.ipynb
     - file: notebooks/05_including_a_crop_model.ipynb
+  jupyter: true
 site:
   template: book-theme
   # options:

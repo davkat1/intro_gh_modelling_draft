@@ -35,7 +35,7 @@
 Imports needed for running the code
 """
 import ipywidgets as widgets
-from IPython.display import display, Math
+from IPython.display import display, Math, HTML
 
 
 # %% [markdown]
@@ -147,7 +147,7 @@ sliders_vars = {
         "max": 1,
         "step": 0.01
     },
-    "continue here...": 
+    "continue here...": ""
 }
 
 # %% [markdown]
@@ -442,7 +442,8 @@ def dynamic_display(tau, iSun, fTunnelSky, epsCover, alphaR,
         {{{tTunnel:.1f}}}\,^\circ\mathrm{{C}}
         
         """
-    return substituted_equation
+    # return substituted_equation
+    return rf"\texttt{{tTunnel}}: {{{tTunnel:.1f}}}"
 
 
 # %% [markdown]
@@ -460,12 +461,12 @@ header = widgets.HBox([
         layout=widgets.Layout(width="300px")
     ),
     widgets.HTML(
-        "<b>Description</b>",
-        layout=widgets.Layout(width="250px")
-    ),
-    widgets.HTML(
         "<b>Unit</b>",
         layout=widgets.Layout(width="100px")
+    ),
+    widgets.HTML(
+        "<b>Description</b>",
+        layout=widgets.Layout(width="250px")
     ),
     widgets.HTML(
         "<b>Reference</b>",
@@ -497,12 +498,12 @@ for name, var in sliders_vars.items():
         ),
         slider,
         widgets.HTML(
-            var["description"],
-            layout=widgets.Layout(width="250px")
-        ),
-        widgets.HTML(
             var["unit"],
             layout=widgets.Layout(width="100px")
+        ),
+        widgets.HTML(
+            var["description"],
+            layout=widgets.Layout(width="250px")
         ),
         widgets.HTML(
             f"<i>{var['reference']}</i>",
@@ -571,12 +572,15 @@ def update(*args):
         result.clear_output()
 
         # General equation
-        display(Math(equation_latex))
+        # display(Math(equation_latex))
 
-        display(widgets.HTML("<br><br>"))
+        # display(widgets.HTML("<br><br>"))
 
+        # display(Math(r"\texttt{tTunnel} :"))
+        
         # Numerical equation
-        display(Math(substituted_equation))
+        str = f"<strong><code>tTunnel:</strong></code> {tTunnel:0.2f} °C"
+        display(HTML(str))
 
 
 # Connect sliders
