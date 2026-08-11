@@ -1,0 +1,28 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: 874b6bdb-e0f3-47fb-bef4-0c41b7360ec5
+  title: Introduction to greenhouse modelling
+  # description: ~~~~todo
+  keywords:
+    - greenhouse
+    - modelling
+    - open-education-resources
+    - open-source
+    - open-science
+    - horticulture
+  authors:
+    - David Katzin, david.katzin@wur.nl
+  # github:
+  # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+  toc:
+    - file: notebooks/01_introduction.ipynb
+    - file: notebooks/02_tunnel_model_with_sliders.ipynb
+    - file: notebooks/03_tunnel_model_in_greenlight.ipynb
+    - file: notebooks/04_from_steady_state_to_dynamic_model.ipynb
+    - file: notebooks/05_including_a_crop_model.ipynb
+site:
+  template: book-theme
+  # options:
+  #   favicon: favicon.ico
+  #   logo: site_logo.png

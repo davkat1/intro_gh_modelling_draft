@@ -100,7 +100,9 @@ tunnel_def = {
 # %% [markdown]
 # ### 3.2.2 Exercise: completing the tunnel model variables in the GreenLight format
 #
-# In the following code block, complete the definition of `tunnel_def` as above, to include all variables described in Equation 3.9. **You may skip the variable `tTunnel` for now, we will deal with that one in the next step**.
+# In the following code block, complete the definition of `tunnel_def` as above, to include all variables described in Equation 3.9. 
+#
+# **You may skip the variable `tTunnel` for now, we will deal with that one in the next step**.
 
 # %%
 """ 
@@ -398,7 +400,10 @@ display_output(output_2, [["tTunnel", "tOut",  "tSoil", "tSky"], ["iSun"]], ["Te
 model_table(mdl_2)
 
 # %% [markdown]
-# Exercise - make a new weather file, modify it, run the sim with it
+# ### 3.8.1 Exercise: modifying the weather file
+
+# %% [markdown]
+# - Make a new weather file, modify it, run the sim with it
 
 # %% [markdown]
 # ## Reflection
