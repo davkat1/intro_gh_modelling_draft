@@ -15,48 +15,62 @@
 
 # %% [markdown]
 # # 2. Interactive greenhouse "tunnel" model
+
+# %% [markdown]
+# ## 2.1 In this lesson
+
+# %% [markdown]
+# In this lesson, you will be implementing the greenhouse "tunnel" model described in Chapter 3 of [the course textbook](https://doi.org/10.1163/9789004697041). You will create an **interactive model with sliders**, where users can choose values for various model parameters and inputs, and see how those values influence the model result.
 #
+# ![Tunnel image by Richard Webb](../Figures/geograph-4408046-by-Richard-Webb.jpg)<br>
+# **Figure 2.1.** A tunnel greenhouse.<br>
+# Image copyright Richard Webb, CC BY-SA 2.0, https://www.geograph.org.uk/reuse.php?id=4408046
 
 # %% [markdown]
-# Outline
-# - Eq 3.9 textbook
-# - Textbook chapter 3
-# - We will make a slider thingie
-# - Recommend to have the TOC on the side
+# ### 2.1.2 What you'll learn
 
 # %% [markdown]
-# ## 2.1 Imports for Chapter 2
+# By the end of this lesson, you will be able to:
+# - Implement your own model: from a text description in a book to an interactive tool
+# - Analyze the textbook's tunnel model, pointing out which parameters and inputs influence the model result, and to what extent
+# - Expand an existing model and add new components to it
 
 # %% [markdown]
-# The following code block defines imports that will be used later in this notebook. There's no need to read through this code, simply run it and move to the next section
-
-# %%
-""" 
-Imports needed for running the code
-"""
-import ipywidgets as widgets
-from IPython.display import display, Math, HTML
-
+# ## 2.2 The greenhouse "tunnel" model
 
 # %% [markdown]
-# ## 2.2 Defining the tunnel model variables
+# Section 3.4 (pp. 69-71) of [the course textbook](https://doi.org/10.1163/9789004697041) describes a simplified greenhouse: without ventilation, without a crop, and with the cover temperature equal to the indoor air temperature. This is a theoretical greenhouse, since almost all greenhouses will have at least some ventilation, and the cover temperature is often different from the air temperature. The textbook chooses to call this theoretical greenhouse a "tunnel", where the authors most likely have something like [Figure 2.1](#2.1-In-this-lesson) in mind. Nevertheless, [tunnel greenhouses](https://en.wikipedia.org/wiki/Polytunnel) (also called polytunnels or hoophouses), often do have controllable ventilation, like for instance in [this image](../Figures/Interior_of_a_Hoop_House_on_the_Farm_at_Saint_Joe's,_Superior_Township,_Michigan.JPG). See also Section 1.2 (pp. 19-21) of the course textbook.
 
 # %% [markdown]
-# - Create a Python dictionary (`dict`) that defines the variables, we will call this dictionary `sliders_vars`
-# - `sliders_vars` is a dictionary of dictionaries
-# - Each variable will be an entry in the dictionary `sliders_vars`, with the key as the variable name, and the value as a dictionary
-# - For each value, we define:
-#     - Description
-#     - Unit
-#     - Reference
-#     - Value
-#     - Min
-#     - Max
-#     - Step
+# ### 2.2.1 Exercise: background reading
 
 # %% [markdown]
-# ### 2.2.1 Example: some tunnel model variables
-# In the code block below we start defining `sliders_vars`, following the text after Eq 3.9. We define: 
+# As prearation for this lesson, read Chapter 3 (pp. 54-73) of [the course textbook](https://doi.org/10.1163/9789004697041). This will provide theoretical background on all the various components of the "tunnel" model, which you will implement in this lesson
+
+# %% [markdown]
+# ## 2.3 Creating an interactive model: defining the variables
+
+# %% [markdown]
+# ### 2.3.1 Defining the tunnel model variables
+
+# %% [markdown]
+# In order to create an interactive model, we will take the following steps:
+# 1. We will create a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables, as described in the textbook after **Equation 3.9** (pg. 70). We will call this dictionary `model_vars`
+# 2. `model_vars` will be defined as a dictionary of dictionaries: each variable will be an entry in the dictionary `model_vars`, with the *key* as the variable name, and the *value* as a dictionary
+# 3. The *values* of `model_vars` will include the available information we have about each of the variables in our model, specifically:
+#     - **Description:** a description about what the variable is
+#     - **Reference:** a reference to the place in the textbook where the variable is described
+#     - **Value:** a starting value for the variable in the interactive model
+#     - **Unit:** the unit in which the variable is expressed
+#     - **Min:** a minimum value for the variable in the interactive model
+#     - **Max:** a maximum value for the variable in the interactive model
+#     - **Step:** the step size which the interactive model will allow for the variable
+
+# %% [markdown]
+# ### 2.3.2 Example: some tunnel model variables
+
+# %% [markdown]
+# In the code block below we start defining `model_vars`, following the text after **Equation 3.9** in the textbook. We define: 
 # - **𝜏** (Greek letter tau), which we write in code as `tau`
 # - $I_{sun}$ , which we write in code as `iSun`
 # - $F_{tunnel,sky}$ , which we write in code as `fTunnelSky`
@@ -65,17 +79,15 @@ from IPython.display import display, Math, HTML
 # - The **description** is taken directly from the text under Eq. 3.9
 # - The **reference** is taken from the text under Eq. 3.9. If no reference is given, we refer simply to Eq. 3.9
 # - The **value** is an estimate or example for a reasonable value. For example, for **𝜏**, Table 3.1 gives an indication
-# - The **min** and **max** values are values that will be displayed in the sliders. We choose values that are reasonabl or interesting to consider
-# - **step** is the step size that the slider allows. For example, a value of 5 and a step size of 0.1, means value like 4.9 and 5.1 will be used, but not 4.91 and 5.11.
-#
-# **Note**: ~~~something about converting equations like $I_{sun}$ to code like `iSun`
+# - The **min** and **max** are a choice of a reasonable or interesting range of values to consider for the variable
+# - **step** is a choice of a reasonable step size that the model will allow. For example, a value of 5 and a step size of 0.1, means value like 4.9 and 5.1 will be used, but not 4.91 and 5.11.
 
 # %%
 """ 
-Example 2.2.1
+Example 2.3.2
 Define tunnel model variables to be used in sliders 
 """
-sliders_vars = {
+model_vars = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
@@ -107,18 +119,36 @@ sliders_vars = {
 }
 
 # %% [markdown]
-# ### 2.2.2 Exercise: completeing the tunnel model variables
+# #### 2.3.2.1 A note about notation
+
+# %% [markdown]
+# As we are in the process of taking a model that is described in a book and implementing it in code, it is clear that certain notations that are useful in printed text are not so easy to use in code. For example, it is [not recommended](https://peps.python.org/pep-0008/#source-file-encoding) to use symbols such as the Greek letter 𝜏 in Python variable names. There is also no standard way to include subscripts ($I_{sun}$), superscripts ($I^{sun}$), or commas ($F_{a,b}$) in Python variable names.
 #
-# In the following code block, complete the definition of `sliders_vars` as above, to include all variables described in Equation 3.9.
+# Therefore, we must choose a (preferably consistent) method to convert $printed$ variable names to variable names `in_code`. We use the following conventions:
+# - Variable names are written using [`mixedCase`](https://peps.python.org/pep-0008/#descriptive-naming-styles)
+# - A subscript, superscript, or comma is considered as a word separator
+# - Greek letters are written out in full
+#
+# **Examples:**
+# - $\tau$ -> `tau`
+# - $I_{sun}$ -> `iSun`
+# - $F_{tunnel,sky}$ -> `fTunnelSky`
+# - $\varepsilon_{cover}$ -> `epsilonCover`
+
+# %% [markdown]
+# ### 2.3.3 Exercise: completing the tunnel model variables
+#
+# In the following code block, complete the definition of `model_vars` as above, to include all variables described in Equation 3.9.
 #
 # **Be sure to check that you have defined *all* the variables of Equation 3.9!**
 
 # %%
 """ 
-Exercise 2.2.2
+Exercise 2.3.3
 Define tunnel model variables to be used in sliders 
+Complete this code block 
 """
-sliders_vars = {
+model_vars = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
@@ -147,20 +177,20 @@ sliders_vars = {
         "max": 1,
         "step": 0.01
     },
-    "continue here...": ""
+    "Continue here...": ""
 }
 
 # %% [markdown]
-# #### 2.2.2 Solution
+# #### 2.3.3.1 Solution
 #
-# The following code block is a possible solution to **Exercise 2.2.2**
+# The following code block is a possible solution to **Exercise 2.3.3**:
 
 # %%
 """ 
-Solution for Exercise 2.2.2
+Solution for Exercise 2.3.3
 Define tunnel model variables to be used in sliders 
 """
-sliders_vars = {
+model_vars = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
@@ -189,7 +219,7 @@ sliders_vars = {
         "max": 1,
         "step": 0.01
     },
-    "epsCover": {
+    "epsilonCover": {
         "description": "Emissivity of the cover, including effect of screen(s)",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.3",
@@ -252,7 +282,7 @@ sliders_vars = {
         "max": 1,
         "step": 0.01
     },
-    "epsSoil": {
+    "epsilonSoil": {
         "description": "Emissivity of the soil, including possible effect of mulch",
         "unit": "-",
         "reference": "Stanghellini et al. (2024), Eq. 3.3",
@@ -290,40 +320,53 @@ sliders_vars = {
     }
 }
 
+# %% [markdown]
+# ### 2.3.4 Reflection: defining the tunnel model variables
 
 # %% [markdown]
-# ### 2.2.3 Reflection: constructing the tunnel model
-#
 # Before moving forward, stop to reflect on the following questions:
 # - How was the experience of converting the equation from a textbook to code?
 # - Were all variables clearly defined in the textbook?
 # - Was it easy to choose representative values and ranges?
+# - Did you need to check the provided solution to fill in values?
+# - Do you agree with the choices made in the provided solution?
 
 # %% [markdown]
-# ## 2.3 Defining calculation of `tTunnel`
+# #### 2.3.4.1 Some notes on defining the tunnel model variables
 
 # %% [markdown]
-# - The goal is to see what happens to tTunnel when other things change
-# - Need to calculate tTunnel
+# You may have noticed the following:
+# - It is not easy to find "reasonable" values, or ranges of values, for each variable. This typically requires some very careful reading, or consultation with an expert
+# - Some notational choices in the textbook can be quite confusing, for example the unit "K or °C" is slightly ambiguous
+# - In the list of variables under Equation 3.9, the text $F_{a,b}$ means that $a$ and $b$ can be replaced by other names, e.g., $F_{tunnel,soil}$. However, the text $A_{cover,soil}$ seems to mean something else, and in fact, it should more appropriately read $A_{cover},$ $A_{soil}$
+# - The value for $A_{soil}$ is particularly hard to find. In fact, it is only used in the relattion $\frac{A_{cover}}{A_{soil}}$ which indicates "the surface area of the cover per unit surface area of soil". In the provided solution, these two variables have been lumped together to a single variable `aCoverOverSoil` with the unit of m2 cover per m2 soil, which is equivalent to a unitless variable
 
 # %% [markdown]
-# ### 2.3.1 Exercise: algebraically solving for `tTunnel`
+# ## 2.4 Creating an interactive model: defining the calculation of $T_{tunnel}$
+
+# %% [markdown]
+# Until now, we have defined the various variables included in the greenhouse tunnel model: for each variable we've set a name, description, unit, initial value, range, and step size. We have not yet described the relationship between all those variables.
+#
+# In the interactive model that we will create, our goal will be to show how the temperature of the tunnel, `tTunnel`, is influenced by all the other variables. For this, we must first figure out how this influence is defined in the model. 
+#
+# **Equation 3.9** in the course textbook defines a relation between ingoing and outgoing energy fluxes in the tunnel greenhouse. **Equation 3.10** is a restructuring of **Equation 3.9**, which describes the difference between the tunnel temperature and the outdoor temperature. Unfortunately, none of these equations provide a straightforward description of how $T_{tunnel}$ is influenced by other factors. For this, some algebra is needed.
+
+# %% [markdown]
+# ### 2.4.1 Exercise: algebraically solving for $T_{tunnel}$
 #
 # This is an exercise in algebra:
 #
-# **Solve Equation 3.9 for $T_{tunnel}$.**
+# **Solve Equation 3.9 for $T_{tunnel}$.** 
 #
 # In other words, rearrange Equation 3.9 so that $T_{tunnel}$ is isolated.
 #
-# ~~ links to how this can be done
+# If you're unfamiliar (or out of practice) with solving equations in algebra, then an elementary algebra course or primer might help, such as OpenStax's [Elementary Algebra 2e](https://openstax.org/details/books/elementary-algebra-2e).
 
 # %% [markdown]
-# #### 2.3.1 Solution
-#
-#
+# #### 2.4.1 Solution
 
 # %% [markdown]
-# We start with Eqaution 3.9:
+# We start with Equation 3.9:
 #
 # $$
 # \begin{align}
@@ -332,125 +375,111 @@ sliders_vars = {
 # \end{align}
 # $$
 #
-# ~~ to do
+# Expand the brackets:
+#
+# $$
+# \begin{align}
+# \tau I_{sun} &= F_{tunnel,sky} \varepsilon_{cover} \alpha_R T_{tunnel} - F_{tunnel,sky} \varepsilon_{cover} \alpha_R T_{sky} + \frac{A_{cover}}{A_{soil}} \alpha_{cover} T_{tunnel} - \frac{A_{cover}}{A_{soil}} \alpha_{cover} T_{out} \\
+# &+F_{tunnel,soil} \varepsilon_{soil} \alpha_R T_{tunnel} - F_{tunnel,soil} \varepsilon_{soil} \alpha_R T_{soil} +\alpha_{soil} T_{tunnel} - \alpha_{soil} T_{soil} \\
+# \end{align}
+# $$
+#
+# Consolidate the coefficients of $T_{tunnel}$ :
+#
+# $$
+# \begin{align}
+# \tau I_{sun} &= T_{tunnel} \left( F_{tunnel,sky} \varepsilon_{cover} \alpha_R  + \frac{A_{cover}}{A_{soil}} \alpha_{cover} + F_{tunnel,soil} \varepsilon_{soil} \alpha_R +\alpha_{soil} \right) \\
+# & - F_{tunnel,sky} \varepsilon_{cover} \alpha_R T_{sky} - \frac{A_{cover}}{A_{soil}} \alpha_{cover} T_{out} - F_{tunnel,soil} \varepsilon_{soil} \alpha_R T_{soil}  - \alpha_{soil} T_{soil} \\
+# \end{align}
+# $$
+#
+# Rearrange to isolate the term with $T_{tunnel}$ :
+#
+# $$
+# \begin{align}
+# \tau I_{sun} + F_{tunnel,sky} \varepsilon_{cover} \alpha_R T_{sky} + \frac{A_{cover}}{A_{soil}} \alpha_{cover} T_{out} + F_{tunnel,soil} \varepsilon_{soil} \alpha_R T_{soil}  + \alpha_{soil} T_{soil} \\
+# = T_{tunnel} \left( F_{tunnel,sky} \varepsilon_{cover} \alpha_R  + \frac{A_{cover}}{A_{soil}} \alpha_{cover} + F_{tunnel,soil} \varepsilon_{soil} \alpha_R +\alpha_{soil} \right) \\
+# \end{align}
+# $$
+#
+# Finally, isolating $T_{tunnel}$ :
+#
+# $$
+# \begin{align}
+# T_{tunnel} = &\\
+# &\frac{ \tau I_{sun} + F_{tunnel,sky} \varepsilon_{cover} \alpha_R T_{sky} + \frac{A_{cover}}{A_{soil}} \alpha_{cover} T_{out} + F_{tunnel,soil} \varepsilon_{soil} \alpha_R T_{soil}  + \alpha_{soil} T_{soil}}{F_{tunnel,sky} \varepsilon_{cover} \alpha_R  + \frac{A_{cover}}{A_{soil}} \alpha_{cover} + F_{tunnel,soil} \varepsilon_{soil} \alpha_R +\alpha_{soil}}
+# \end{align}
+# $$
 
 # %% [markdown]
-# ## 2.4 Setting up the interactive model
-#
-#
-#
+# ## 2.5 Setting up the interactive model
 
 # %% [markdown]
-# Explain code below, stress that the Python details are not very important
+# This section converts the model variables that we've defined until now into an interactive model, where the influence of each variable on the output `tTunnel` will be immediately seen. The bulk of the content below is an implementation in Python of the interactive sliders, using [Jupyter Widgets](https://ipywidgets.readthedocs.io/) and [IPython](https://ipython.readthedocs.io/). 
+#
+# Since our focus is on the model itself and not so much the implementation, most of the code below can be simply run, but there is no need to analyze it deeply. Some exercises will help guide you to focus on what is relevant for our purposes.
+
+# %% [markdown]
+# ### 2.5.1 Imports
+
+# %% [markdown]
+# The following code block imports packages and modules that are used in the following code blocks.
 
 # %%
-# Define calculation of tTunnel
-def calc_tTunnel(tau, iSun, fTunnelSky, epsCover, alphaR, 
-            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
+""" 
+Imports needed for running the following code
+"""
+import ipywidgets as widgets
+from IPython.display import display, Math, HTML
+
+
+# %% [markdown]
+# ### 2.5.2 Defining the calculation of `tTunnel`
+
+# %% [markdown]
+# The code below defines the calculation of `tTunnel`, as a function of all other model variables.
+
+# %%
+""" 
+Define the calculation of tTunnel
+"""
+def calc_tTunnel(tau, iSun, fTunnelSky, epsilonCover, alphaR, 
+            tSky, tOut, tSoil, fTunnelSoil, epsilonSoil, aCoverOverSoil, 
             alphaCover, alphaSoil):
     tTunnel = ( 
             tau * iSun 
-            + fTunnelSky * epsCover * alphaR * tSky 
+            + fTunnelSky * epsilonCover * alphaR * tSky 
             + aCoverOverSoil * alphaCover * tOut 
-            + tSoil * (fTunnelSoil * epsSoil * alphaR + alphaSoil)
+            + tSoil * (fTunnelSoil * epsilonSoil * alphaR + alphaSoil)
         ) / (
-            fTunnelSky * epsCover * alphaR 
+            fTunnelSky * epsilonCover * alphaR 
             + aCoverOverSoil * alphaCover 
-            + fTunnelSoil * epsSoil * alphaR 
+            + fTunnelSoil * epsilonSoil * alphaR 
             + alphaSoil
         )
     return tTunnel
 
 
-# Define displayed equation
-equation_latex = r"""
-\texttt{tTunnel} =
-\frac{
-\texttt{tau} \times \texttt{iSun}
-+
-\texttt{fTunnelSky}\times\texttt{epsCover}\times\texttt{alphaR}\times\texttt{tSky}
-+
-\texttt{aCoverOverSoil}\times\texttt{alphaCover}\times\texttt{tOut}
-+
-\mathrm{tSoil}\times
-\left(
-\texttt{fTunnelSoil}\times\texttt{epsSoil}\times\texttt{alphaR}
-+
-\texttt{alphaSoil}
-\right)
-}{
-\texttt{fTunnelSky}\times\texttt{epsCover}\times\texttt{alphaR}
-+
-\texttt{aCoverOverSoil}\times\texttt{alphaCover}
-+
-\texttt{fTunnelSoil}\times\texttt{epsSoil}\times\texttt{alphaR}
-+
-\texttt{alphaSoil}
-}
-"""
-
-# Define dynamic display
-def dynamic_display(tau, iSun, fTunnelSky, epsCover, alphaR, 
-            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
-            alphaCover, alphaSoil):
-    numerator = (
-        tau*iSun
-        + fTunnelSky*epsCover*alphaR*tSky
-        + aCoverOverSoil*alphaCover*tOut
-        + tSoil*(fTunnelSoil*epsSoil*alphaR + alphaSoil)
-    )
-
-    denominator = (
-        fTunnelSky*epsCover*alphaR
-        + aCoverOverSoil*alphaCover
-        + fTunnelSoil*epsSoil*alphaR
-        + alphaSoil
-    )
-
-    tTunnel = calc_tTunnel(tau, iSun, fTunnelSky, epsCover, alphaR, 
-            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
-            alphaCover, alphaSoil)
-
-    substituted_equation = rf"""
-        =
-        \frac{{
-        {tau:.2f}\times{iSun:.0f}
-        +
-        {fTunnelSky:.2f}\times{epsCover:.2f}\times{alphaR:.1f}\times{tSky:.0f}
-        +
-        {aCoverOverSoil:.1f}\times{alphaCover:.1f}\times{tOut:.0f}
-        +
-        {tSoil:.0f}\times
-        \left(
-        {fTunnelSoil:.2f}\times{epsSoil:.2f}\times{alphaR:.1f}
-        +
-        {alphaSoil:.2f}
-        \right)
-        }}
-        {{
-        {fTunnelSky:.2f}\times{epsCover:.2f}\times{alphaR:.1f}
-        +
-        {aCoverOverSoil:.1f}\times{alphaCover:.1f}
-        +
-        {fTunnelSoil:.2f}\times{epsSoil:.2f}\times{alphaR:.1f}
-        +
-        {alphaSoil:.2f}
-        }}
-        =
-        \frac{{{numerator:.2f}}}{{{denominator:.2f}}}
-        =
-        {{{tTunnel:.1f}}}\,^\circ\mathrm{{C}}
-        
-        """
-    # return substituted_equation
-    return rf"\texttt{{tTunnel}}: {{{tTunnel:.1f}}}"
-
+# %% [markdown]
+# ### 2.5.3 Exercise: calculation of `tTunnel`
 
 # %% [markdown]
-# Explain code below, stress that it can be skipped
+# Confirm that the definition of `tTunnel` above matches the calculation of $T_{tunnel}$ that was defined in [Section 2.4](#2.4-Creating-an-interactive-model:-defining-the-calculation-of-$T_{tunnel}$).
+
+# %% [markdown]
+# ### 2.5.4 Setting up the interactive model
+
+# %% [markdown]
+# The code below uses [Jupyter Widgets](https://ipywidgets.readthedocs.io/) and [IPython](https://ipython.readthedocs.io/) to create an interactive model which displays how `tTunnel` is influenced by the other variables. Run the code, but the details may be skipped.
 
 # %%
-# Create header row
+""" 
+Set up the interactive model
+"""
+
+# Create header row, showing the titles:
+# "Variable", "Value", "Unit", "Description",
+#   and "Reference"
 header = widgets.HBox([
     widgets.HTML(
         "<b>Variable</b>",
@@ -475,11 +504,15 @@ header = widgets.HBox([
 ])
 
 
-# Create parameter rows
+# Create variable rows. For each variable,
+# display the variable name, a slider to
+# select the value, then the unit, description,
+# and reference
+# Note that the code below uses the dictionary
+# model_vars, which was defined earlier in this 
 sliders = {}
 rows = []
-
-for name, var in sliders_vars.items():
+for name, var in model_vars.items():
     slider = widgets.FloatSlider(
         value=var["value"],
         min=var["min"],
@@ -511,12 +544,15 @@ for name, var in sliders_vars.items():
         )
     ])
 
-    rows.append(row)
+    # Do not make a slider for tTunnel
+    if name != "tTunnel":
+        rows.append(row)
 
 
-# Calculate tTunnel
+# Get the widgets output
 result = widgets.Output()
 
+# Calculate the value of tTunnel
 def calculate():
 
     values = {
@@ -527,60 +563,33 @@ def calculate():
     tau = values["tau"]
     iSun = values["iSun"]
     fTunnelSky = values["fTunnelSky"]
-    epsCover = values["epsCover"]
+    epsilonCover = values["epsilonCover"]
     alphaR = values["alphaR"]
     tSky = values["tSky"]
     tOut = values["tOut"]
     tSoil = values["tSoil"]
     fTunnelSoil = values["fTunnelSoil"]
-    epsSoil = values["epsSoil"]
+    epsilonSoil = values["epsilonSoil"]
     aCoverOverSoil = values["aCoverOverSoil"]
     alphaCover = values["alphaCover"]
     alphaSoil = values["alphaSoil"]
     
 
-    tTunnel = calc_tTunnel(tau, iSun, fTunnelSky, epsCover, alphaR, 
-            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
+    tTunnel = calc_tTunnel(tau, iSun, fTunnelSky, epsilonCover, alphaR, 
+            tSky, tOut, tSoil, fTunnelSoil, epsilonSoil, aCoverOverSoil, 
             alphaCover, alphaSoil)
 
-    return tTunnel, values
+    return tTunnel
 
 
 def update(*args):
 
-    tTunnel, values = calculate()
-
-    tau = values["tau"]
-    iSun = values["iSun"]
-    fTunnelSky = values["fTunnelSky"]
-    epsCover = values["epsCover"]
-    alphaR = values["alphaR"]
-    tSky = values["tSky"]
-    tOut = values["tOut"]
-    tSoil = values["tSoil"]
-    fTunnelSoil = values["fTunnelSoil"]
-    epsSoil = values["epsSoil"]
-    aCoverOverSoil = values["aCoverOverSoil"]
-    alphaCover = values["alphaCover"]
-    alphaSoil = values["alphaSoil"]
-
-    substituted_equation = dynamic_display(tau, iSun, fTunnelSky, epsCover, alphaR, 
-            tSky, tOut, tSoil, fTunnelSoil, epsSoil, aCoverOverSoil, 
-            alphaCover, alphaSoil)
-
+    tTunnel = calculate()
+    
+    # Display result
     with result:
         result.clear_output()
-
-        # General equation
-        # display(Math(equation_latex))
-
-        # display(widgets.HTML("<br><br>"))
-
-        # display(Math(r"\texttt{tTunnel} :"))
-        
-        # Numerical equation
-        str = f"<strong><code>tTunnel:</strong></code> {tTunnel:0.2f} °C"
-        display(HTML(str))
+        display(HTML(f"<big><strong><code>tTunnel:</strong></code> {tTunnel:0.2f} °C</big>"))
 
 
 # Connect sliders
@@ -588,7 +597,7 @@ for slider in sliders.values():
     slider.observe(update, names="value")
 update()
 
-# Display everything
+# Function for displaying everything
 def display_tTunnel_widget():
     display(
         widgets.VBox(
@@ -603,30 +612,39 @@ def display_tTunnel_widget():
 
 
 # %% [markdown]
-# ## 2.5 Interactive greenhouse "tunnel" model
+# ## 2.6 Running the interactive model
 
 # %% [markdown]
-# The following code block displays the sliders widget
-#
-# Depending on your screen resolution, it may be hard to see everything so:
-# - zoom out in your browser
-# - go for zen mode
-# - gor for full screen
-# - click on the left hand side of the display (collapse output)
+# Running the following code block will run and displays the interactive model. Depending on your screen resolution, it may be hard to see all model variables at the same time. Therefore, the following may help:
+# - Set your browser view to full screen mode with the keyboard key F11
+# - Zoom out in your browser by using the keyboard combination **Ctrl+Minus key**
+# - To set the zoom back to standard setting, use the keyboard combination **Ctrl+0**
 
 # %%
 display_tTunnel_widget()
 
 # %% [markdown]
-# ### 2.5.1 Exercise: analyzing the tunnel model
-# - For each variable, does it go together with tTunnel (incerase -> increase) or the other way around
-# - Is this in line with what you expect
-# - Are there variables that have a stronger influence than others?
-# - Are there variables that have an optimum behaviour
-# - Do the answers above (for each variable) depend on the values of other variables?
+# ### 2.6.1 Exercise: analyzing the tunnel model
+# Use the interactive model above to analyze the tunnel model you created:
+# - What is the highest and lowest value that you can reach for `tTunnel`?
+#     - How can you reach such a value, what are the mechanisms in the model that allow it?
+#     - Are these values realistic, in the sense that they can be achieved in a real greenhouse?
+# - For each variable, is it positively related with `tTunnel` (an increase in the variable results in an increase in `tTunnel`) or negatively related?
+#     - For the question above, does the answer depend on the values of other variables?
+#     - Are there variables that do not have a strictly positive or negative relation with `tTunnel`? Can you explain why?
+# - Are there variables that have a stronger influence on `tTunnel` than others? Which are the most influential variables?
+# - Are the relations you've found line with what you expect from a real greenhouse?
 
 # %% [markdown]
-# ## Next step
+# ## 2.7 Going further: expanding the model to include ventilation
 
 # %% [markdown]
-# Just describe the next step
+# In Chapter 5 of the textbook (Section 5.3, pg. 107), the tunnel model is expanded to include ventilation. See if you can repeat the above exercise, but add the influence of ventilation as described in Section 5.3.
+
+# %% [markdown]
+# ## 2.8 Next steps: towards a dynamic model
+
+# %% [markdown]
+# You may have noticed that the interactive model we've created in this chapter is **static**: the weather variables, for example, represent a single moment in time: a single solar radiation value, a single outdoor temperature value. In practice, these variables change, and the greenhouse temperature changes along with it. Moreover, the model is based on a **steady-state assumption** (see pg. 69 of the textbook). The assumption here is that the energy entering the greenhouse is equal to the energy leaving it. In other words, the *dynamics*, or how fast or slow the greenhouse reacts to changes in the outside conditions, is also not included in the model we've built so far. In the following chapters, we will implement the model using varying weather inputs and considering the dynamics. For this, we will use the [GreenLight modelling platform](https://github.com/davkat1/greenlight).
+
+# %%
