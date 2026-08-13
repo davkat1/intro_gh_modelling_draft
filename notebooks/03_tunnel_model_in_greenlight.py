@@ -17,43 +17,29 @@
 # # 3. Implementing the "tunnel" model in the GreenLight platform
 
 # %% [markdown]
-# ## 3.1 Imports for Chapter 3
+# In the previous chapters, we've implemented an interactive model of a greenhouse "tunnel" (a theoretical greenhouse with no ventilation, no crop, and cover temperature equal to air temperature). The calculation we've made was **static**, in the sense that it represented the tunnel greenhouse during a single moment: the outdoor weather conditions (solar radiation, outdoor air temperature, sky temperature, soil temperature) were provided as single values.
+#
+# The static approach was quite limited, since in practice, outdoor conditions are constantly changing, and it is interesting to see the behaviour of the greenhouse through time. We will do this in the current chapter, and we will use the [GreenLight modelling platform](https://github.com/davkat1/greenlight) for that.
 
 # %% [markdown]
-# The following code block defines imports that will be used later in this notebook. There's no need to read through this code, simply run it and move to the next section
+# ## What is GreenLight?
 
-# %%
-""" 
-Imports needed for running the code
-"""
-# Ignore warnings during ODE solving
-# Typically such warnings should be checked,
-# but for the current exercise it is not important
-import warnings
-warnings.filterwarnings("ignore")
+# %% [markdown]
+# [GreenLight](https://github.com/davkat1/greenlight) has been originally developed as [an open-source model for greenhouses with a tomato crop](https://doi.org/10.1016/j.biosystemseng.2020.03.010). Since then, it has been expanded to be used as a modelling platform where [various model components can be combined](https://github.com/davkat1/GreenLight/blob/main/docs/modifying_and_combining_models.md). GreenLight is therefore no longer a singular model, but allows to define and run models in a structured way, which will be used in this chapter.
 
-import os
+# %% [markdown]
+# ## Defining models in GreenLight
 
-from IPython.display import display
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-import greenlight
-
+# %% [markdown]
+# Models are defined in GreenLight in a structure that is similar to what we've constructed in the previous chapter. Models are defined using a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables. Like in the previous chapter, we use a dictionary of dictionaries. The *keys* of the model definition dictionary are the names of the variables. For each variable, the corresponding dictionary *value* is its own dictionary, with the following *keys*:
+# - **description** - a description of the variable
+# - **unit** - the unit that the variable's values are in
+# - **reference** - a reference describing where the variable definition came from
+# - **definition** - a definition of the variable. This may be a single value, input data, or a calculation based on other variables
+# - **type** - the type of variable, see more information below
 
 # %% [markdown]
 # ## 3.2 Defining the tunnel model in GreenLight
-
-# %% [markdown]
-# - Similar to the previous exercise, with some differences
-# - Again we create a dictionary of dictionaries
-# - Each variable will be an entry in the dictionary `tunnel_def`, with the key as the variable name, and the value as a dictionary
-# - For each value, we define:
-#     - Description - same as in the previous exercise
-#     - Unit - same as in the previous exercise
-#     - Reference - same as in the previous exercise
-#     - Definition - similar to "value" in the previous exercise
-#     - Type - either "const", "aux", "state", or "input" (see more below)
 
 # %% [markdown]
 # ### 3.2.1 Example: some tunnel model variables in the GreenLight format
@@ -97,7 +83,7 @@ tunnel_def = {
     }
 }
 
-# %% [markdown]
+# %% [markdown] jupyter={"source_hidden": true}
 # ### 3.2.2 Exercise: completing the tunnel model variables in the GreenLight format
 #
 # In the following code block, complete the definition of `tunnel_def` as above, to include all variables described in Equation 3.9. 
@@ -268,6 +254,31 @@ tunnel_def["tTunnel"] = {
     }
 
 # %% [markdown]
+# ## 3.1 Imports for Chapter 3
+
+# %% [markdown]
+# The following code block defines imports that will be used later in this notebook. There's no need to read through this code, simply run it and move to the next section
+
+# %%
+""" 
+Imports needed for running the code
+"""
+# Ignore warnings during ODE solving
+# Typically such warnings should be checked,
+# but for the current exercise it is not important
+import warnings
+warnings.filterwarnings("ignore")
+
+import os
+
+from IPython.display import display
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import greenlight
+
+
+# %% [markdown]
 # ## 3.4 Setting the model definition as GreenLight model
 
 # %% [markdown]
@@ -294,6 +305,29 @@ mdl.run()
 
 # %% [markdown]
 # Explanation of the code below
+
+# %%
+output_df = mdl.full_sol.copy()
+
+output_df.columns = pd.MultiIndex.from_arrays(
+    [
+        output_df.columns,
+        [mdl.var_descriptions.get(col, "no_description") 
+         for col in output_df.columns],
+        [mdl.var_units.get(col, "no_unit_defined")
+         for col in output_df.columns],
+    ],
+    names=["Variable", "Description", "Unit"]
+)
+
+display(
+    output_df.style
+      .format("{:.2f}")
+      .set_properties(**{"text-align": "left"})
+      .set_table_styles([
+          {"selector": "th", "props": [("text-align", "left")]}
+      ])
+)
 
 # %%
 """

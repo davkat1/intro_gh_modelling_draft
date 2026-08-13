@@ -17,14 +17,15 @@
 # # 2. Interactive greenhouse "tunnel" model
 
 # %% [markdown]
+# ![Tunnel image by Richard Webb](../Figures/geograph-4408046-by-Richard-Webb.jpg)<br>
+# **Figure 2.1.** A tunnel greenhouse.<br>
+# Image copyright Richard Webb, CC BY-SA 2.0, https://www.geograph.org.uk/reuse.php?id=4408046
+
+# %% [markdown]
 # ## 2.1 In this lesson
 
 # %% [markdown]
 # In this lesson, you will be implementing the greenhouse "tunnel" model described in Chapter 3 of [the course textbook](https://doi.org/10.1163/9789004697041). You will create an **interactive model with sliders**, where users can choose values for various model parameters and inputs, and see how those values influence the model result.
-#
-# ![Tunnel image by Richard Webb](../Figures/geograph-4408046-by-Richard-Webb.jpg)<br>
-# **Figure 2.1.** A tunnel greenhouse.<br>
-# Image copyright Richard Webb, CC BY-SA 2.0, https://www.geograph.org.uk/reuse.php?id=4408046
 
 # %% [markdown]
 # ### 2.1.2 What you'll learn
@@ -39,7 +40,9 @@
 # ## 2.2 The greenhouse "tunnel" model
 
 # %% [markdown]
-# Section 3.4 (pp. 69-71) of [the course textbook](https://doi.org/10.1163/9789004697041) describes a simplified greenhouse: without ventilation, without a crop, and with the cover temperature equal to the indoor air temperature. This is a theoretical greenhouse, since almost all greenhouses will have at least some ventilation, and the cover temperature is often different from the air temperature. The textbook chooses to call this theoretical greenhouse a "tunnel", where the authors most likely have something like [Figure 2.1](#2.1-In-this-lesson) in mind. Nevertheless, [tunnel greenhouses](https://en.wikipedia.org/wiki/Polytunnel) (also called polytunnels or hoophouses), often do have controllable ventilation, like for instance in [this image](../Figures/Interior_of_a_Hoop_House_on_the_Farm_at_Saint_Joe's,_Superior_Township,_Michigan.JPG). See also Section 1.2 (pp. 19-21) of the course textbook.
+# Section 3.4 (pp. 69-71) of [the course textbook](https://doi.org/10.1163/9789004697041) describes a simplified greenhouse: without ventilation, without a crop, and with the cover temperature equal to the indoor air temperature. This is a theoretical greenhouse, since almost all greenhouses will have at least some ventilation, and the cover temperature is often different from the air temperature. The textbook chooses to call this theoretical greenhouse a "tunnel", where the authors most likely have something like [Figure 2.1](#2.-Interactive-greenhouse-"tunnel"-model) in mind. Nevertheless, [tunnel greenhouses](https://en.wikipedia.org/wiki/Polytunnel) (also called polytunnels or hoophouses), often do have controllable ventilation, like for instance in [this image](../Figures/Interior_of_a_Hoop_House_on_the_Farm_at_Saint_Joe's,_Superior_Township,_Michigan.JPG) ([Image](https://commons.wikimedia.org/wiki/File:Interior_of_a_Hoop_House_on_the_Farm_at_Saint_Joe%27s,_Superior_Township,_Michigan.JPG) copyright Dwight Burdette, CC BY 3.0). 
+#
+# See also Section 1.2 (pp. 19-21) of the course textbook.
 
 # %% [markdown]
 # ### 2.2.1 Exercise: background reading
@@ -77,9 +80,9 @@
 #
 # Where:
 # - The **description** is taken directly from the text under Eq. 3.9
-# - The **reference** is taken from the text under Eq. 3.9. If no reference is given, we refer simply to Eq. 3.9
-# - The **value** is an estimate or example for a reasonable value. For example, for **𝜏**, Table 3.1 gives an indication
-# - The **min** and **max** are a choice of a reasonable or interesting range of values to consider for the variable
+# - The **reference** inidcates where the variable is describe. The text under Eq. 3.9 usually provides a good indication, but if more information was used (for example, for choosing the value for the variable), it is also included
+# - The **value** is an estimate or example for a reasonable value. For example, for **𝜏**, Table 3.1 in the textbook gives an indication
+# - The **min** and **max** are a choice of a reasonable or interesting range of values to consider for the variable. The interactive model we will create will allow changing the variable with values between **min** and **max**. Therefore, the exact choice here is not very important, as long as it gives values that are interesting to test later
 # - **step** is a choice of a reasonable step size that the model will allow. For example, a value of 5 and a step size of 0.1, means value like 4.9 and 5.1 will be used, but not 4.91 and 5.11.
 
 # %%
@@ -91,7 +94,7 @@ model_vars = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.2",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2 & Table 3.1",
         "value": 0.8,
         "min": 0,
         "max": 1,
@@ -101,7 +104,7 @@ model_vars = {
         "name": "iSun",
         "description": "Solar radiation",
         "unit": "W/m2",
-        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
         "value": 700,
         "min": 0,
         "max": 1500,
@@ -110,7 +113,7 @@ model_vars = {
     "fTunnelSky": {
         "description": "View factor between tunnel and sky",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5 & pg. 70",
         "value": 0.5,
         "min": 0,
         "max": 1,
@@ -119,7 +122,13 @@ model_vars = {
 }
 
 # %% [markdown]
-# #### 2.3.2.1 A note about notation
+# #### 2.3.2.1 Why are we doing this?
+
+# %% [markdown]
+# You might ask, why are we including so much information in our model definition, including a description, unit, and a reference? The reason is that we want to create model components (which can, for example, eventually become publishable shared files) that are as complete as possible. You will see in the following sections how a model (like the one described in the textbook) often contains many implicit choices. We want, as much as possible, to make these choices explicit, so that future users (including our future selves) will be able to understand why choices were made, so that any modification or extension will also be based on informed reasoning.
+
+# %% [markdown]
+# #### 2.3.2.2 A note about notation
 
 # %% [markdown]
 # As we are in the process of taking a model that is described in a book and implementing it in code, it is clear that certain notations that are useful in printed text are not so easy to use in code. For example, it is [not recommended](https://peps.python.org/pep-0008/#source-file-encoding) to use symbols such as the Greek letter 𝜏 in Python variable names. There is also no standard way to include subscripts ($I_{sun}$), superscripts ($I^{sun}$), or commas ($F_{a,b}$) in Python variable names.
@@ -152,7 +161,7 @@ model_vars = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.2",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2 & Table 3.1",
         "value": 0.8,
         "min": 0,
         "max": 1,
@@ -162,7 +171,7 @@ model_vars = {
         "name": "iSun",
         "description": "Solar radiation",
         "unit": "W/m2",
-        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
         "value": 700,
         "min": 0,
         "max": 1500,
@@ -171,7 +180,7 @@ model_vars = {
     "fTunnelSky": {
         "description": "View factor between tunnel and sky",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5 & pg. 70",
         "value": 0.5,
         "min": 0,
         "max": 1,
@@ -181,8 +190,71 @@ model_vars = {
 }
 
 # %% [markdown]
-# #### 2.3.3.1 Solution
+# ### 2.3.4 Some hints to help with Exercise 2.3.3
+
+# %% [markdown]
+# Use the following blocks to help you in the process of completing Exercise 2.3.3. You may, of course, choose to first struggle on your own, but the following can give some direction in case you are lost.
+
+# %% [markdown]
+# #### 2.3.4.1 $\varepsilon_{cover}$ (`epsilonCover`) and $\varepsilon_{soil}$ (`epsilonSoil`)
+
+# %% [markdown]
+# The text under Equation 3.9 leads you to Equation 3.3, but that is not very helpful in determining a value for these variables. Check Section 3.2.1 of the textbook for the ranges of values for emissivity, and the emissivity of "most materials". You may search online for typical emissivity values for various materials. If you're unsure, consider that many materials in the greenhouse are often wet (due to irrigation or condensation).
 #
+# Note that $\varepsilon_{soil}$ is not included in the list below Equation 3.9. This is variable represents the emissivity of the soil.
+
+# %% [markdown]
+# #### 2.3.4.2 $\alpha_{R}$ (`alphaR`)
+
+# %% [markdown]
+# In the textbook, under Equation 3.6, we read that "a very first rule of thumb is that the net radiation energy exchanged between two things at 'terrestrial' temperatures is about 6 W/m2 for each degree difference in temperature". This quote refers to a reasonable estimate for $\alpha_R$
+
+# %% [markdown]
+# #### 2.3.4.3 $A_{cover}$ (`aCover`) and $A_{soil}$ (`aSoil`)
+
+# %% [markdown]
+# The explanations under Equation 3.7 in the textbook are somewhat lacking. $A_{soil}$, "the surface of the soil" (m<sup>2</sup>), represents the land area of the greenhouse. $A_{cover}$, "the surface of the cover" (m<sup>2</sup>), is the surface area of the cover, i.e., the area of the roof and side walls of a greenhouse. Thus, for a greenhouse with a land area of 1 ha, $A_{soil}$ would be $10000$ $\textrm{m}^2$. The value of $A_{cover}$ would be larger, as it includes the 10000 m<sup>2</sup> of roof above the greenhouse, plus more area of the side walls. The roof area itself can also be larger than the land area, for example in the typical [Venlo-type greenhouse](../Figures/Greenhouses_in_Bemmel,_Lingewaard.jpg) ([Image](https://commons.wikimedia.org/wiki/File:Greenhouses_in_Bemmel,_Lingewaard.jpg) in the public domain). 
+#
+# Note that in Equation 3.9, $A_{cover}$ and $A_{soil}$ always appear as a ratio. Therefore, it could be simpler to lump these two variables into one, for instance `aCoverOverSoil`. The unit of this lumped variable is m<sup>2</sup> cover per m<sup>2</sup> soil, which is equivalent to a unitless variable. A reasonable value for this variable is 1.2, and it cannot be below 1. 
+
+# %% [markdown]
+# #### 2.3.4.4 $\alpha_{cover}$ (`alphaCover`) and $\alpha_{soil}$ (`alphaSoil`)
+
+# %% [markdown]
+# The textbook gives very little information on these variable after Equations 3.7 and 3.8. It mentions that $\alpha_{cover}$ depends on wind, and that it is somehow related to the U coefficient (Section 8.1.1 in the textbook). However, it points out that the U coefficient accounts for "both heat" (presumably, convective and conductive), "and thermal radiation losses", while $\alpha_{cover}$ likely does not include thermal radiation losses, since those depend on $T_{sky}$ and not $T_{out}$. The textbook also warns: "The U coefficient is an average overall heat transfer coefficient, and should not be used for calculating the temperature in the greenhouse at a given time". Nevertheless, we currently want to construct a rather general model, so average values are fine for our purposes.
+#
+# A look at Section 8.1.1 (pp. 167-168) of the textbook shows that the U coefficient may have values such as 9.26 or 6.83 W m<sup>-2</sup> K<sup>-1</sup>. The U coefficient includes radiative, conductive, and convective transfers, while $\alpha_{cover}$ includes only conductive and convective transfers. Therefore, $\alpha_{cover}$ may be in the range of 3-5 W m<sup>-2</sup> K<sup>-1</sup>. 
+#
+# Since there is little information about $\alpha_{soil}$, we may assume it takes values in a similar range as $\alpha_{cover}$. For the sake of our interactive model, we may consider larger ranges, say, 0-10 W m<sup>-2</sup> K<sup>-1</sup>
+
+# %% [markdown]
+# #### 2.3.4.5 $F_{tunnel,sky}$ (`fTunnelSky`) and $F_{tunnel,soil}$ (`fTunnelSoil`)
+
+# %% [markdown]
+# As explained in Section 3.2.2 of the textbook, the view factor is a fraction, with a value between 0 and 1. The text below Equation 3.9 states directly that the values for $F_{tunnel,sky}$ and $F_{tunnel,soil}$ are both 0.5. As explained in Section 3.2.2, the sum of all view factors for one point (in this case, the tunnel) must be 1. A choice of $F_{tunnel,sky} = F_{tunnel,soil} = 0.5$ fits with this concept.
+#
+# However, the choice above depends on what we precisely mean by "the tunnel" here. Air emits very little thermal radiation, so it is actually the cover of the greenhouse which should probably be considered. If that is the case, one could say that the radiation towards the sky is coming from "the external side of the cover", and radiation towards the soil is coming from "the internal side of the cover". Seeing it this way, one may choose $F_{tunnel,sky} = F_{tunnel,soil} = 1$.
+#
+# A different reasoning could say that for each m<sup>2</sup> of soil, there are actually 2 m<sup>2</sup> of cover that is exchanging solar radiation - the outer (top) side of the cover, and the inner (bottom) side of the cover. In this case, the view factor is still 0.5, but it should be multiplied by a factor 2. In effect, this fits with considering the view factors as having values of $F_{tunnel,sky} = F_{tunnel,soil} = 1$.
+#
+# The above is an interesting discussion, but the most important question is **what is the influence of the choice above on the model results?** Since we are building an interactive model, we can allow the view factors to vary between 0.5 (or even 0) and 1, and see how that influences the model.
+
+# %% [markdown]
+# #### 2.3.4.5 $T_{out}$ (`tOut`), $T_{sky}$ (`tSky`), $T_{soil}$ (`tSoil`), and $T_{tunnel}$ (`tTunnel`)
+
+# %% [markdown]
+# The choice for $T_{out}$ can be based on your local climate: any range of outdoor air temperatures you may experience can be reasonable here. 
+#
+# For $T_{sky}$ you may use the text on pg. 67 of the textbook, which states "On a clear, cold night there can easily be a difference of 50 °C between a greenhouse and the upper layers of the atmosphere". Based on this, one can also allow $T_{sky}$ to be 50 °C coulder than the outdoor air.
+#
+# For $T_{soil}$ the textbook on pg. 68 states that the soil "is usually colder than the greenhouse air during the day and warmer at night". Thus, assuming that the greenhouse air can be about 20 °C warmer than the outdoor air during the day, and about 10 °C colder than the outdoor air at night, the soil temperature may be anywehere between 10 °C less and 20 °C more than the outdoor air temperature.
+#
+# As for $T_{tunnel}$, the interactive model we will construct will display $T_{tunnel}$ as the result, depending on the other variables. Therefore, the  choice of values for $T_{tunnel}$ are not so important. However, based on the previous paragraph, a range which goes about 10 °C lower and 20 °C higher than the range for the outdoor temperatures would be a reasonable choice.
+
+# %% [markdown]
+# ### 2.3.5 Complete solution for Exercise 2.3.3
+
+# %% [markdown]
 # The following code block is a possible solution to **Exercise 2.3.3**:
 
 # %%
@@ -194,7 +266,7 @@ model_vars = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.2",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2 & Table 3.1",
         "value": 0.8,
         "min": 0,
         "max": 1,
@@ -204,7 +276,7 @@ model_vars = {
         "name": "iSun",
         "description": "Solar radiation",
         "unit": "W/m2",
-        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
         "value": 700,
         "min": 0,
         "max": 1500,
@@ -213,7 +285,7 @@ model_vars = {
     "fTunnelSky": {
         "description": "View factor between tunnel and sky",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5 & pg. 70",
         "value": 0.5,
         "min": 0,
         "max": 1,
@@ -222,7 +294,7 @@ model_vars = {
     "epsilonCover": {
         "description": "Emissivity of the cover, including effect of screen(s)",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.3",
+        "reference": "Stanghellini et al. (2024), Eq. 3.3 & Section 3.2.1",
         "value": 1,
         "min": 0,
         "max": 1,
@@ -231,10 +303,10 @@ model_vars = {
     "alphaR": {
         "description": "Apparent transfer coefficient for thermal radiation",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.6",
+        "reference": "Stanghellini et al. (2024), Eq. 3.6 & paragraph following",
         "value": 6,
-        "min": 0,
-        "max": 20,
+        "min": 4,
+        "max": 10,
         "step": 0.1
     },
     "tTunnel": {
@@ -276,7 +348,7 @@ model_vars = {
     "fTunnelSoil": {
         "description": "View factor between tunnel and soil",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5 & pg. 70",
         "value": 0.5,
         "min": 0,
         "max": 1,
@@ -285,7 +357,7 @@ model_vars = {
     "epsilonSoil": {
         "description": "Emissivity of the soil, including possible effect of mulch",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.3",
+        "reference": "Stanghellini et al. (2024), Eq. 3.3 & Section 3.2.1",
         "value": 1,
         "min": 0,
         "max": 1,
@@ -304,16 +376,16 @@ model_vars = {
         "description": "Heat transfer coefficient of the cover material (including possible screens)",
         "unit": "W/m2/K",
         "reference": "Stanghellini et al. (2024), Eq. 3.7",
-        "value": 6,
+        "value": 4,
         "min": 0,
-        "max": 20,
+        "max": 10,
         "step": 0.1
     },
     "alphaSoil": {
         "description": "Heat transfer coefficient of the soil (including possible mulches)",
         "unit": "W/m2/K",
         "reference": "Stanghellini et al. (2024), Eq. 3.68",
-        "value": 5,
+        "value": 4,
         "min": 0,
         "max": 20,
         "step": 0.1
@@ -321,7 +393,7 @@ model_vars = {
 }
 
 # %% [markdown]
-# ### 2.3.4 Reflection: defining the tunnel model variables
+# ### 2.3.6 Reflection: defining the tunnel model variables
 
 # %% [markdown]
 # Before moving forward, stop to reflect on the following questions:
@@ -332,14 +404,14 @@ model_vars = {
 # - Do you agree with the choices made in the provided solution?
 
 # %% [markdown]
-# #### 2.3.4.1 Some notes on defining the tunnel model variables
+# #### 2.3.6.1 Some notes on defining the tunnel model variables
 
 # %% [markdown]
 # You may have noticed the following:
 # - It is not easy to find "reasonable" values, or ranges of values, for each variable. This typically requires some very careful reading, or consultation with an expert
 # - Some notational choices in the textbook can be quite confusing, for example the unit "K or °C" is slightly ambiguous
 # - In the list of variables under Equation 3.9, the text $F_{a,b}$ means that $a$ and $b$ can be replaced by other names, e.g., $F_{tunnel,soil}$. However, the text $A_{cover,soil}$ seems to mean something else, and in fact, it should more appropriately read $A_{cover},$ $A_{soil}$
-# - The value for $A_{soil}$ is particularly hard to find. In fact, it is only used in the relattion $\frac{A_{cover}}{A_{soil}}$ which indicates "the surface area of the cover per unit surface area of soil". In the provided solution, these two variables have been lumped together to a single variable `aCoverOverSoil` with the unit of m2 cover per m2 soil, which is equivalent to a unitless variable
+# - 
 
 # %% [markdown]
 # ## 2.4 Creating an interactive model: defining the calculation of $T_{tunnel}$
