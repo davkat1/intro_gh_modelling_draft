@@ -26,6 +26,8 @@
 
 # %% [markdown]
 # [GreenLight](https://github.com/davkat1/greenlight) has been originally developed as [an open-source model for greenhouses with a tomato crop](https://doi.org/10.1016/j.biosystemseng.2020.03.010). Since then, it has been expanded to be used as a modelling platform where [various model components can be combined](https://github.com/davkat1/GreenLight/blob/main/docs/modifying_and_combining_models.md). GreenLight is therefore no longer a singular model, but allows to define and run models in a structured way, which will be used in this chapter.
+#
+# This book is based on **GreenLight v2.0.5**, and assumes that this is the version installed in the running system.
 
 # %% [markdown]
 # ## Defining models in GreenLight
@@ -123,7 +125,7 @@ tunnel_def = {
 # %%
 """ 
 Exercise 3.2.2
-Define tunnel model for running with the GreenLight platform
+Define a tunnel model for running with the GreenLight platform
 """
 tunnel_def = {
     "tau": {
@@ -157,8 +159,8 @@ tunnel_def = {
 
 # %%
 """ 
-Solution 3.2.1
-Define tunnel model for running with the GreenLight platform
+Solution 3.2.2
+Define a tunnel model for running with the GreenLight platform
 """
 tunnel_def = {
     "tau": {
@@ -259,8 +261,36 @@ tunnel_def = {
 # ## 3.3 Defining `tTunnel` and adding it to the model definition
 
 # %% [markdown]
-# - we define tTunnel based on the previous calculation \ algebraic solution
-# - Explain what happens below
+# In the previous chapter, we solved an algebraic equation and found that in the tunnel model described by the textbook in Equation 3.9, 
+#
+# $$
+# \begin{align}
+# T_{tunnel} = &\\
+# &\frac{ \tau I_{sun} + F_{tunnel,sky} \varepsilon_{cover} \alpha_R T_{sky} + \frac{A_{cover}}{A_{soil}} \alpha_{cover} T_{out} + F_{tunnel,soil} \varepsilon_{soil} \alpha_R T_{soil}  + \alpha_{soil} T_{soil}}{F_{tunnel,sky} \varepsilon_{cover} \alpha_R  + \frac{A_{cover}}{A_{soil}} \alpha_{cover} + F_{tunnel,soil} \varepsilon_{soil} \alpha_R +\alpha_{soil}}
+# \end{align}
+# $$
+#
+# In our implementation of the model then, `tTunnel` is a variable that is a defined by a calculation of other variables. In GreenLight, such variables have a `type` called `aux`.
+#
+# You may also recall from the previous chapter, that in the implementation of the interactive model, we defined:
+#
+# ```
+# tTunnel = ( 
+#             tau * iSun 
+#             + fTunnelSky * epsilonCover * alphaR * tSky 
+#             + aCoverOverSoil * alphaCover * tOut 
+#             + tSoil * (fTunnelSoil * epsilonSoil * alphaR + alphaSoil)
+#         ) / (
+#             fTunnelSky * epsilonCover * alphaR 
+#             + aCoverOverSoil * alphaCover 
+#             + fTunnelSoil * epsilonSoil * alphaR 
+#             + alphaSoil
+#         )
+# ```
+#
+# The same will be done here, with the above definition of `tTunnel` set as a string, under the `definition` attribute. To enhance readability, we will use backslashes that break up lines of code.
+#
+# In the following code block, the *key* `"tTunnel"` is added to the `tunnel_def` dictionary, with *value* holding the `definition` and `type` as explained above:
 
 # %%
 """
@@ -273,22 +303,25 @@ tunnel_def["tTunnel"] = {
         "type": "aux",
         "definition": "(" \
         "tau * iSun " \
-        "+ fTunnelSky * epsCover * alphaR * tSky " \
+        "+ fTunnelSky * epsilonCover * alphaR * tSky " \
         "+ aCoverOverSoil * alphaCover * tOut " \
-        "+ tSoil * (fTunnelSoil * epsSoil * alphaR + alphaSoil)" \
+        "+ tSoil * (fTunnelSoil * epsilonSoil * alphaR + alphaSoil)" \
     ") / ( " \
-        "fTunnelSky * epsCover * alphaR " \
+        "fTunnelSky * epsilonCover * alphaR " \
         "+ aCoverOverSoil * alphaCover " \
-        "+ fTunnelSoil * epsSoil * alphaR " \
+        "+ fTunnelSoil * epsilonSoil * alphaR " \
         "+ alphaSoil " \
     ")"
     }
 
 # %% [markdown]
-# ## 3.1 Imports for Chapter 3
+# ## 3.4 Setting the model definition as GreenLight model
 
 # %% [markdown]
-# The following code block defines imports that will be used later in this notebook. There's no need to read through this code, simply run it and move to the next section
+# Before starting, we will import some packages which will be used later. Run the code block below, but there is no need to focus on the details there.
+
+# %% [markdown]
+# ## 3.1 Imports for Chapter 3
 
 # %%
 """ 
@@ -296,126 +329,205 @@ Imports needed for running the code
 """
 # Ignore warnings during ODE solving
 # Typically such warnings should be checked,
-# but for the current exercise it is not important
+# but for the current exercise it is easier to just ignore them
 import warnings
 warnings.filterwarnings("ignore")
 
-import os
-
-from IPython.display import display
-import numpy as np
-import matplotlib.pyplot as plt
+# For storing model output in DataFrames
 import pandas as pd
+
+# For displaying DataFrames
+from IPython.display import display
+
+# For making plots
+import matplotlib.pyplot as plt
+
+# For using the GreenLight platform
 import greenlight
 
 
 # %% [markdown]
-# ## 3.4 Setting the model definition as GreenLight model
+# ## Setting up a `GreenLight` instance
 
 # %% [markdown]
-# Explanation of the code below
+# GreenLight defines a `GreenLight` [class](https://docs.python.org/3/tutorial/classes.html), where every model is an instance of this class.
+#
+# The full list of attributes that `GreenLight` instances have is given in [the documentation of GreenLight](https://github.com/davkat1/GreenLight/blob/main/greenlight/core.py). For the current lesson, it is good to be aware of the following attributes:
+# - `input_prompt` - this is model definition that is provided to the GreenLight instance. It is used to define the model and run it
+# - `variables` - after the model has been run, this is a dictionary that contains all the model variables as *keys* and their definitions as *values*
+# - `var_units` - after the model has been run, this is a dictionary that contains all the model variables as *keys* and their units as *values*
+# - `var_descriptions` - after the model has been run, this is a dictionary that contains all the model variables as *keys* and their descriptions as *values*
+# - `consts` - after the model has been run, this is a dictionary that contains as *keys* the model variables that have been set with a `"type": "const"`. The *values* of the dictionary are the variable definitions
+# - `inputs` - after the model has been run, this is a dictionary that contains as *keys* the model variables that have been set with a `"type": "input"`. The *values* of the dictionary are the variable definitions
+# - `aux` - after the model has been run, this is a dictionary that contains as *keys* the model variables that have been set with a `"type": "aux"`. The *values* of the dictionary are the variable definitions
+# - `input_data` - after the model has been run, this is a pandas DataFrame which contains any input data provided to the model
+# - `full_sol` - after the model has been run, this is a pandas DataFrame which contains the model results, i.e., the calculated values for all variables throughout the simulated period
+
+# %% [markdown]
+# In the following code block, we create a new instance of the class `GreenLight`, called `mdl`. When creating this instance (calling the constructor), we pass as the `input_prompt` argument the variable `tunnel_def` that we've defined above. This gives `mdl` our definition of the tunnel model as the model it should be running.
 
 # %%
+# Create a GreenLight instance called mdl,
+# set the input_prompt of mdl as the
+# tunnel model defined above
 mdl = greenlight.GreenLight(
-    base_path=os.getcwd(), 
-    input_prompt=tunnel_def, 
-    output_path=os.path.join("output", "output.csv")
+    input_prompt=tunnel_def
 )
+
+# %% [markdown]
+# We can see that a new variable `mdl` has been created, and it has an [attribute](https://docs.python.org/3/tutorial/classes.html) called `input_prompt`, which contains our model definition:
+
+# %%
+# Display the input_prompt attribute of mdl
+display(mdl.input_prompt)
 
 # %% [markdown]
 # ## 3.5 Running the model in GreenLight
 
 # %% [markdown]
-# Explanation of the code below
+# Now that the model has been stored in a `GreenLight` instance, the instance can be run, which performs a model simulation:
 
 # %%
+# Run the simulation for mdl
 mdl.run()
+
+# %% [markdown]
+# Running the code block above should generate some output, which shows how long the simulated period was (by default, 1 day), and some information about files that have been created by the simulation.
 
 # %% [markdown]
 # ## 3.6 Displaying model output in a table
 
 # %% [markdown]
-# Explanation of the code below
+# Besides creating output files, the `mdl.run()` command also stored the model output in the `mdl` instance. We can access this stored output by using the code below.
+#
+# The solution (simulation result) of the model is stored in the attribute `full_sol`. This variable is a [pandas DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html), which contains the calculated values of the model variables:
 
 # %%
+# Display the model solution
+display(mdl.full_sol)
+
+# %% [markdown]
+# To provide more information, we can also include the variable descritions and units, which we've ensured to include in our model definition.
+#
+# The variable descriptions are stored in the attribute `var_descriptions` in the form of a dictionary:
+
+# %%
+# Display the variable descriptions
+display(mdl.var_descriptions)
+
+# %% [markdown]
+# The variable units are stored in the attribute `var_units` in the form of a dictionary:
+
+# %%
+# Display the variable units
+display(mdl.var_units)
+
+# %% [markdown]
+# To create one DataFrame which contains the model result, together with the description and unit of each variable, we may use the following code block:
+
+# %%
+"""
+Create a new DataFrame called output_df
+which contains variable names, descriptions, and units
+as well as model output.
+Then display this DataFrame
+"""
+
+# Make a copy of the model solution
 output_df = mdl.full_sol.copy()
 
+# Set the variable names, descriptions, and units
+# as a MultiIndex of the DataFrame
 output_df.columns = pd.MultiIndex.from_arrays(
     [
-        output_df.columns,
-        [mdl.var_descriptions.get(col, "no_description") 
-         for col in output_df.columns],
+        # The original index in mdl.full_sol - the variable names
+        output_df.columns,  
+
+        # The variable descriptions
+        # If there is no description, use "no_description"
+        [mdl.var_descriptions.get(col, "no_description")          
+         for col in output_df.columns],  
+
+        # The variable units
+        # If there is no unit, use "no_unit_defined"
         [mdl.var_units.get(col, "no_unit_defined")
          for col in output_df.columns],
     ],
+    # Give names to the indexes
     names=["Variable", "Description", "Unit"]
 )
 
+# Display output_df
 display(
     output_df.style
-      .format("{:.2f}")
-      .set_properties(**{"text-align": "left"})
-      .set_table_styles([
-          {"selector": "th", "props": [("text-align", "left")]}
-      ])
-)
-
-# %%
-"""
-Load simulation result
-"""
-output_df = pd.read_csv(os.path.join("output", "output.csv"), header=[0,1,2], low_memory=False)
-
-display(
-    output_df.style
-      .hide(axis="index")
-      .format("{:.2f}")
-      .set_properties(**{"text-align": "left"})
-      .set_table_styles([
+      .format("{:.2f}")  # Limit numbers to 2 digits after the decimal
+      .set_properties(**{"text-align": "left"})  # align left
+      .set_table_styles([  # align headers to the left
           {"selector": "th", "props": [("text-align", "left")]}
       ])
 )
 
 # %% [markdown]
-# Explanation of the output above
+# Some things to notice about the model output:
+#
+# First of all, we can see that a **Time** variable has been added to the model. GreenLight always simulates the model through time, and by default, the modelled simulation period is 1 day. We can see that no unit for **Time** has been defined, which in GreenLight means that the default time unit, seconds, is used. The output is given in 1 hour intervals (3600 s). We can see that 1 day has been simulated by the fact that 24 rows have been generated.
+#
+# Another obvious thing in the model output is that all rows are the same: the values for **iSun**, **tSky**, **tOut**, and **tSoil** are constant, which results in a constant value for **tTunnel** (similar to what we have seen in the previous chapter). In the next section we will change that.
+#
+# Lastly, we can also see that the generated output table does not contain all variables. We do not see in this table the variables which we've defined as constants, with `"type": "const"`. In order to see the constants, we may do the following:
+
+# %%
+# Display the constants stored in mdl
+display(mdl.consts)
+
 
 # %% [markdown]
 # ## 3.7 Displaying model output in a graph
 
 # %% [markdown]
-# Explanation of the code below
+# It is often more informative to display simulation results in a graphs rather than a table. Since we will want to do this often, we will define a function `display_graphs` that creates multiple graphs from the model simulation results. The explanation about the function is provided in the documentation inside the code block below:
 
 # %%
-"""
-Make graphs
-"""
+def display_graphs(full_sol, vars_to_plot, title, ylabel, line_style):
+    """
+    Display multiple graphs generated from a model solution full_sol
 
-def display_output(output_df, chosen_vars, titles, ylabels, line_style):
-    for vars_to_plot, title, ylabel in zip(chosen_vars, titles, ylabels):
-        plt.figure(figsize=(10, 6))
-        
-        for var in vars_to_plot:
-            plt.plot(output_df["Time"], output_df[var], line_style, label=var)
-        
-        plt.xlabel("Time (s)")
-        plt.ylabel(ylabel)
-        plt.title(title)
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+    :param full_sol: A full_sol attribute of a GreenLight instance, after the model has been run
+    :chosen_vars: A list of variable names in full_sol to be displayed in the graph
+    :title: The title to show on top of the graph
+    :ylabel: The label to show on the y axis
+    :line_style: The style of the lines. 
+                 Use '-' for full lines, '--' for dashed, 
+                 '-o' for full with circles showing the values  
+    """
+    # Create a new matplotlib figure
+    plt.figure(figsize=(10, 6))
 
-def model_table(mdl):
-    display(pd.DataFrame(mdl.variables.items(), columns=["Variable", "Definition"])
-            .style
-                .hide(axis="index")
-                .set_properties(**{"text-align": "left", "font-family": "monospace"})
-                .set_table_styles([
-                    {"selector": "th", "props": [("text-align", "left")]}
-              ])
-        )
+    # Plot each variable in the graph
+    for var in vars_to_plot:
+        plt.plot(full_sol["Time"], output_df[var], line_style, label=var)
 
-display_output(output_df, [["tTunnel", "tOut",  "tSoil", "tSky"], ["iSun"]], ["Temperatures", "Radiation"], ["°C", "W/m2"], '-o')
-model_table(mdl)
+    # Add axis labels, title, legend, grid 
+    plt.xlabel("Time (s)")
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+# %% [markdown]
+# We can use the function above to display some graphs of the simulation result:
+
+# %%
+# Graph the simulated temperatures
+display_graphs(mdl.full_sol, ["tTunnel", "tOut",  "tSoil", "tSky"],"Temperatures", "°C", '-o')
+
+# Graph the solar radiation
+display_graphs(mdl.full_sol, ["iSun"],"Radiation", "W/m2", '-o')
+
+# %% [markdown]
+# These graphs show constant values in time, like we saw in the output table. That will change soon.
 
 # %% [markdown]
 # Explanation of the output above
@@ -482,3 +594,20 @@ model_table(mdl_2)
 # %% [markdown]
 # - Explain why this isn't good enough
 # - Save the def file for future use
+
+# %%
+"""
+Maybe not needed 
+"""
+def model_table(mdl):
+    display(pd.DataFrame(mdl.variables.items(), columns=["Variable", "Definition"])
+            .style
+                .hide(axis="index")
+                .set_properties(**{"text-align": "left", "font-family": "monospace"})
+                .set_table_styles([
+                    {"selector": "th", "props": [("text-align", "left")]}
+              ])
+        )
+
+display_output(output_df, [["tTunnel", "tOut",  "tSoil", "tSky"], ["iSun"]], ["Temperatures", "Radiation"], ["°C", "W/m2"], '-o')
+model_table(mdl)
