@@ -1,6 +1,6 @@
 Time,iSun,tOut,tSky,tSoil
 Time since start of data,Solar radiation,Temperature of the air outside the greenhouse,"Apparent temperature of the sky (depends, among other things, on cloudiness)",Temperature of the soil surface
-s,W m**-2,°C,°C,°C
+s,W m**-2,Â°C,Â°C,Â°C
 0,0,6.8000001,-3.0491573,12.269952
 300,0,6.8,-2.47636,12.269686
 600,0,6.6000002,-2.1368212,12.26942

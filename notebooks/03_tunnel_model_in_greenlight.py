@@ -327,13 +327,17 @@ tunnel_def["tTunnel"] = {
 """ 
 Imports needed for running the code
 """
+
 # Ignore warnings during ODE solving
 # Typically such warnings should be checked,
 # but for the current exercise it is easier to just ignore them
 import warnings
 warnings.filterwarnings("ignore")
 
-# For storing model output in DataFrames
+# For browsing for files in the operating system
+import os
+
+# For editing model output as DataFrames
 import pandas as pd
 
 # For displaying DataFrames
@@ -422,50 +426,56 @@ display(mdl.var_descriptions)
 # Display the variable units
 display(mdl.var_units)
 
+
 # %% [markdown]
-# To create one DataFrame which contains the model result, together with the description and unit of each variable, we may use the following code block:
+# To create one DataFrame which contains the model result, together with the description and unit of each variable, we may use the following function:
 
 # %%
-"""
-Create a new DataFrame called output_df
-which contains variable names, descriptions, and units
-as well as model output.
-Then display this DataFrame
-"""
+def display_table(full_sol):
+    """
+    Create a new DataFrame called output_df
+    which contains variable names, descriptions, and units
+    as well as model output.
+    Then display this DataFrame
 
-# Make a copy of the model solution
-output_df = mdl.full_sol.copy()
+    :param full_sol: A full_sol attribute of a GreenLight instance, after the model has been run
+    """
+    
+    # Make a copy of the model solution
+    table_df = mdl.full_sol.copy()
+    
+    # Set the variable names, descriptions, and units
+    # as a MultiIndex of the DataFrame
+    table_df.columns = pd.MultiIndex.from_arrays(
+        [
+            # The original index in mdl.full_sol - the variable names
+            table_df.columns,  
+    
+            # The variable descriptions
+            # If there is no description, use "no_description"
+            [mdl.var_descriptions.get(col, "no_description")          
+             for col in table_df.columns],  
+    
+            # The variable units
+            # If there is no unit, use "no_unit_defined"
+            [mdl.var_units.get(col, "no_unit_defined")
+             for col in table_df.columns],
+        ],
+        # Give names to the indexes
+        names=["Variable", "Description", "Unit"]
+    )
+    
+    # Display table_df
+    display(
+        table_df.style
+          .format("{:.2f}")  # Limit numbers to 2 digits after the decimal
+          .set_properties(**{"text-align": "left"})  # align left
+          .set_table_styles([  # align headers to the left
+              {"selector": "th", "props": [("text-align", "left")]}
+          ])
+    )
 
-# Set the variable names, descriptions, and units
-# as a MultiIndex of the DataFrame
-output_df.columns = pd.MultiIndex.from_arrays(
-    [
-        # The original index in mdl.full_sol - the variable names
-        output_df.columns,  
-
-        # The variable descriptions
-        # If there is no description, use "no_description"
-        [mdl.var_descriptions.get(col, "no_description")          
-         for col in output_df.columns],  
-
-        # The variable units
-        # If there is no unit, use "no_unit_defined"
-        [mdl.var_units.get(col, "no_unit_defined")
-         for col in output_df.columns],
-    ],
-    # Give names to the indexes
-    names=["Variable", "Description", "Unit"]
-)
-
-# Display output_df
-display(
-    output_df.style
-      .format("{:.2f}")  # Limit numbers to 2 digits after the decimal
-      .set_properties(**{"text-align": "left"})  # align left
-      .set_table_styles([  # align headers to the left
-          {"selector": "th", "props": [("text-align", "left")]}
-      ])
-)
+display_table(mdl.full_sol)
 
 # %% [markdown]
 # Some things to notice about the model output:
@@ -505,7 +515,7 @@ def display_graphs(full_sol, vars_to_plot, title, ylabel, line_style):
 
     # Plot each variable in the graph
     for var in vars_to_plot:
-        plt.plot(full_sol["Time"], output_df[var], line_style, label=var)
+        plt.plot(full_sol["Time"], full_sol[var], line_style, label=var)
 
     # Add axis labels, title, legend, grid 
     plt.xlabel("Time (s)")
@@ -527,28 +537,59 @@ display_graphs(mdl.full_sol, ["tTunnel", "tOut",  "tSoil", "tSky"],"Temperatures
 display_graphs(mdl.full_sol, ["iSun"],"Radiation", "W/m2", '-o')
 
 # %% [markdown]
-# These graphs show constant values in time, like we saw in the output table. That will change soon.
-
-# %% [markdown]
-# Explanation of the output above
+# These graphs show constant values in time, like we saw in the [output table](#3.6-Displaying-model-output-in-a-table). That will change soon.
 
 # %% [markdown]
 # ## 3.8 Adding variable weather input
 
 # %% [markdown]
-# Explain what's happening here, also document where the weather data is coming from
+# As mentioned above, the model simulation is not very interesting if the weather inputs are constant. In the following exercise, we will use a weather data file as an input to the model.
+#
+# The file `input\example_weather.csv` is included with this course. The following code block loads and displays it:
 
 # %%
-# New model
+# Point to the location of the weather file, using the local operating system logic
+weather_file = os.path.abspath(os.path.join("input", "example_weather.csv"))
+
+# Load the file contents as a DataFrame and display it
+display(pd.read_csv(weather_file))
+
+# %% [markdown]
+# You can see that the weather file contains exactly the information we need as input: **iSun**, **tOut**, **tSky**, and **tSoil**. It also contains a variable **Time**, with unit `s` (seconds), which starts at 0 and continues in 300 second (5 minute intervals). The last row has a Time value of 9590100 seconds. A day has 60x60x24 = 86400 seconds. The last row represents a measurement between second 9590100 and 9590400. The data therefore represents 9590400/86400 = 111 days.
+
+# %% [markdown]
+# ## About this weather dataset
+
+# %% [markdown]
+# ~~
+# TO DO TODO TODO
+# # To do
+
+# %% [markdown]
+# ## Before running the new model
+
+# %% [markdown]
+# Before running the model with the input weather data, we will make some technical modifications which will help us in the next steps.
+#
+# First, we will set an `options` variable which will define some simulation settings: 
+# - Run the model from time point `0` to time point `16*86400`, so that only the first 16 days of input data will be read
+# - Ensure that the model calculates the values at every 5 minutes (300 seconds), and creates an output with a 5 minute interval (this will be useful later)
+
+# %%
+# Set model options
 options = {
     "options": {
-        "t_start":"0",
-        "t_end": str(16 * 24 * 60 * 60),
-        "output_step": "300",
-        "t_eval": "300"
+        "t_start":"0",  # Start reading the input data at time point 0
+        "t_end": str(16 * 86400),  # Stop reading the input data at day 16 (86400 = seconds in a day)
+        "t_eval": "300",  # Calculate variables in 5 minute intervals
+        "output_step": "300"  # Create output with 5 minute intervals
     }
 }
 
+# %% [markdown]
+# The next modification is a small workaround related to the limitations of GreenLight. Typically, GreenLight expects at least one variable with `"type": "state"`. This ensures that the model run follows the time units, and reads the input data correctly. For now, we will just add another variable to `tunnel_def`, which we will call `dummy`:
+
+# %%
 tunnel_def["dummy"] = {
         "description": "Dummy variable",
         "unit": "-",
@@ -558,42 +599,101 @@ tunnel_def["dummy"] = {
         "init": "0"
     }
 
-mdl_2 = greenlight.GreenLight(
-    base_path=os.getcwd(), 
-    input_prompt=[tunnel_def, os.path.join("input", "example_weather.csv"), options], 
-    output_path=os.path.join("output", "output_2.csv")
-)
-mdl_2.run()
+# %% [markdown]
+# ## Running the model with variable input data
+
+# %% [markdown]
+# With the above, we can create a new instance of the class `GreenLight`, but we will add `weather_file` and `options` to the input prompt:
 
 # %%
-"""
-Make graphs
-"""
+# Create a new instance of GreenLight
+# input_prompt includes weather_file and options
+mdl_2 = greenlight.GreenLight(
+    input_prompt=[tunnel_def, weather_file, options], 
+    )
 
-# Load simulation result
-output_2 = pd.read_csv(os.path.join("output", "output_2.csv"), header=[0,1,2], low_memory=False)
+# Display the input_prompt attribute of mdl_2
+display(mdl_2.input_prompt)
 
-display_output(output_2, [["tTunnel", "tOut",  "tSoil", "tSky"], ["iSun"]], ["Temperatures", "Radiation"], ["°C", "W/m2"], '-')
-model_table(mdl_2)
+# %%
+# Run the new model
+mdl_2.run()
+
+# %% [markdown]
+# After running the above code block, we see several things:
+# 1. We see that the model loaded data from the file `example_weather.csv`, with an indication of where that file was
+# 2. We see that the simulated time was (almost) 16 days
+# 3. We see that some output files were generated
+
+# %% [markdown]
+# ## Displaying the results of the model with variable weather data
+
+# %% [markdown]
+# We can use the functions we've defined earlier to display the results of the new simulation:
+
+# %%
+# Graph the simulated temperatures
+display_graphs(mdl_2.full_sol, ["tTunnel", "tOut",  "tSoil", "tSky"],"Temperatures", "°C", '-')
+
+# Graph the solar radiation
+display_graphs(mdl_2.full_sol, ["iSun"],"Radiation", "W/m2", '-')
 
 # %% [markdown]
 # ### 3.8.1 Exercise: modifying the weather file
 
 # %% [markdown]
-# - Make a new weather file, modify it, run the sim with it
+# Find the weather file `input\example_weather.csv`. Create a copy of this file, and fill the data points with a dataset of your choosing. For example, try to search online for weather data from where you are right now. Then, try to run a simulation with your weather dataset.
+#
+# You will most likely find that it is difficult to get data for **tSky** and **tSoil**. For **tSky**, you can use the values for **tOut** minus 20 °C, which is a reasonable rough estimate. For **tSoil**, you can use a constant value, of the average outdoor air temperature throughout the whole year. Or use the same values as in `input\example_weather.csv`.
 
 # %% [markdown]
 # ## Reflection
 
 # %% [markdown]
-# To do
+# Before moving on, take a moment to reflect on the previous exercise?
+# - How was the process of finding the dataset that you wanted?
+# - How was it to format the dataset to the same format as `input\example_weather.csv`?
+# - How was the process of including the new dataset in the simulation? Did you succeed?
+# - How does `tTunnel` behave in your simulation, compared to the one with the example weather data? Is it colder? hotter? Does it behave in unexpected ways?
 
 # %% [markdown]
-# ## Next step
+# ## Summary
 
 # %% [markdown]
-# - Explain why this isn't good enough
-# - Save the def file for future use
+# ~~
+# TO DO TODO TODO
+# # To do
+
+# %% [markdown]
+# ## Before moving on
+
+# %% [markdown]
+# Before moving on, let us repeat the simulation above, but run it only for the last day:
+
+# %%
+# Set model options
+options = {
+    "options": {
+        "t_start":str(15 * 86400),  # Start reading the input data at day 15
+        "t_end": str(16 * 86400),  # Stop reading the input data at day 16 (86400 = seconds in a day)
+        "t_eval": "300",  # Calculate variables in 5 minute intervals
+        "output_step": "300"  # Create output with 5 minute intervals
+    }
+}
+
+# Create a new instance of GreenLight
+# input_prompt includes weather_file and options
+mdl_3 = greenlight.GreenLight(
+    input_prompt=[tunnel_def, weather_file, options], 
+    )
+
+mdl_3.run()
+
+# Graph the simulated temperatures
+display_graphs(mdl_3.full_sol, ["tTunnel"],"tTunnel", "°C", '-')
+
+# %% [markdown]
+# We can see something interesting happening around the middle of the day: `tTunnel` goes from almost 25 °C to less than 10 °C, in a very short time span. This seems a little strange, and not likely to happen in a real greenhouse. In the next chapter, we will see why this happens in this simulation, and how this model behaviour may be improved
 
 # %%
 """
