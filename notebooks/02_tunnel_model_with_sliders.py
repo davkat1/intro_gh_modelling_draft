@@ -80,6 +80,7 @@
 #
 # Where:
 # - The **description** is taken directly from the text under Eq. 3.9
+# - The **unit** is also taken directly from the text under Eq. 3.9
 # - The **reference** inidcates where the variable is describe. The text under Eq. 3.9 usually provides a good indication, but if more information was used (for example, for choosing the value for the variable), it is also included
 # - The **value** is an estimate or example for a reasonable value. For example, for **𝜏**, Table 3.1 in the textbook gives an indication
 # - The **min** and **max** are a choice of a reasonable or interesting range of values to consider for the variable. The interactive model we will create will allow changing the variable with values between **min** and **max**. Therefore, the exact choice here is not very important, as long as it gives values that are interesting to test later

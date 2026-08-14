@@ -31,62 +31,92 @@
 # ## Defining models in GreenLight
 
 # %% [markdown]
-# Models are defined in GreenLight in a structure that is similar to what we've constructed in the previous chapter. Models are defined using a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables. Like in the previous chapter, we use a dictionary of dictionaries. The *keys* of the model definition dictionary are the names of the variables. For each variable, the corresponding dictionary *value* is its own dictionary, with the following *keys*:
-# - **description** - a description of the variable
-# - **unit** - the unit that the variable's values are in
-# - **reference** - a reference describing where the variable definition came from
-# - **definition** - a definition of the variable. This may be a single value, input data, or a calculation based on other variables
-# - **type** - the type of variable, see more information below
+# Models are defined in GreenLight in a structure that is similar to what we've constructed in the previous chapter: using a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables. Like in the previous chapter, this is actually a dictionary of dictionaries. The *keys* of the model definition dictionary are the names of the variables. For each variable, the corresponding *value* is another dictionary, with the following *keys*:
+# - `description` - a description of the variable
+# - `unit` - the unit that the variable's values are in
+# - `reference` - a reference describing where the variable definition came from
+# - `definition` - a definition of the variable. This may be a single value, input data, or a calculation based on other variables
+# - `type` - the type of variable, which allows GreenLight to know how to process the variable
+
+# %% [markdown]
+# ## Variable types in GreenLight
+
+# %% [markdown]
+# Variables in GreenLight have 5 possible types:
+# - `const` - indicates that the variable stays constant throughout a model run
+# - `input` - indicates that the values for the variable are provided as an input
+# - `aux` - an auxiliary variable: a variable that is calculated based on other variables
+# - `state` - a value that is defined by an ordinary differential equation
+# - `function` - a function that works as a shorthand for repeated calculations
+#
+# In this chapter, we will focus only on the first 3 `type`s of variables: `const`, `input`, `aux`.
 
 # %% [markdown]
 # ## 3.2 Defining the tunnel model in GreenLight
 
 # %% [markdown]
 # ### 3.2.1 Example: some tunnel model variables in the GreenLight format
-# In the code block below we start defining `tunnel_def`, again following the text after Eq 3.9. We define: 
+# In the code block below we start defining the tunnel model in a variable called `tunnel_def`, again following the text after Eq 3.9. We define: 
 # - `tau` 
 # - `iSun`
 # - `fTunnelSky`
 #
 # Where:
 # - The **description** is taken directly from the text under Eq. 3.9 (same as previous lesson)
-# - The **reference** is taken from the text under Eq. 3.9. If no reference is given, we refer simply to Eq. 3.9 (same as previous lesson)
+# - The **unit** is also taken directly from the text under Eq. 3.9 (same as previous lesson)
+# - The **reference** inidcates where the variable is describe. The text under Eq. 3.9 usually provides a good indication, but if more information was used (for example, for choosing the value for the variable), it is also included (same as previous lesson)
 # - The **definition** is an estimate or example for a reasonable value. For example, for **𝜏**, Table 3.1 gives an indication (same as `value` in previous lesson)
-# - **type** - ~~~add some information about this here
+# - The **type** for most values depends on the variable:
+#   - Values that represent physical properties of the greenhouse which we don't expect to change during the calculation, will be set as `const`
+#   - Values that represent weather variables that change through time will be set as `input`
+#   - The variable `tTunnel` which will be calculated based on other variables will be set as `aux`
+#
+# **Note**: at the moment, GreenLight only supprts text strings as dictionary `keys`. Therefore, where before we defined, for example:
+# ```
+# "value": 0.8
+# ```
+#
+# We now use `definition` instead of `value`, and we write `0.8` as a string, `"0.8"`:
+# ```
+# "definition": "0.8"
+# ```
+#
 
 # %%
 """ 
 Example 3.2.1
-Define tunnel model for running with the GreenLight platform
+Define a tunnel model for running with the GreenLight platform
 """
 tunnel_def = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.2",
-        "definition": "0.7",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2 & Table 3.1",
+        "definition": "0.8",
         "type": "const"
     },
     "iSun": {
         "description": "Solar radiation",
         "unit": "W/m2",
-        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
         "definition": "700",
         "type": "input"
     },
     "fTunnelSky": {
         "description": "View factor between tunnel and sky",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5 & pg. 70",
         "definition": "0.5",
         "type": "const"
     }
 }
 
-# %% [markdown] jupyter={"source_hidden": true}
+# %% [markdown]
 # ### 3.2.2 Exercise: completing the tunnel model variables in the GreenLight format
 #
 # In the following code block, complete the definition of `tunnel_def` as above, to include all variables described in Equation 3.9. 
+#
+# The exercise in the previous chapter may be used as a guide.
 #
 # **You may skip the variable `tTunnel` for now, we will deal with that one in the next step**.
 
@@ -117,7 +147,7 @@ tunnel_def = {
         "definition": "0.5",
         "type": "const"
     },
-    "continue here...":
+    "continue here...": ""
 }
 
 # %% [markdown]
@@ -134,35 +164,36 @@ tunnel_def = {
     "tau": {
         "description": "Transmissivity (hemispherical) of the cover for sun radiation",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.2",
-        "definition": "0.7",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2 & Table 3.1",
+        "definition": "0.8",
         "type": "const"
     },
     "iSun": {
+        "name": "iSun",
         "description": "Solar radiation",
         "unit": "W/m2",
-        "reference": "Stanghellini et al. (2024), Eq. 3.9",
+        "reference": "Stanghellini et al. (2024), Eq. 3.2",
         "definition": "700",
         "type": "input"
     },
     "fTunnelSky": {
         "description": "View factor between tunnel and sky",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5 & pg. 70",
         "definition": "0.5",
         "type": "const"
     },
-    "epsCover": {
+    "epsilonCover": {
         "description": "Emissivity of the cover, including effect of screen(s)",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.3",
+        "reference": "Stanghellini et al. (2024), Eq. 3.3 & Section 3.2.1",
         "definition": "1",
         "type": "const"
     },
     "alphaR": {
         "description": "Apparent transfer coefficient for thermal radiation",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.6",
+        "reference": "Stanghellini et al. (2024), Eq. 3.6 & paragraph following",
         "definition": "6",
         "type": "const"
     },
@@ -190,14 +221,14 @@ tunnel_def = {
     "fTunnelSoil": {
         "description": "View factor between tunnel and soil",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.5",
+        "reference": "Stanghellini et al. (2024), Eq. 3.5 & pg. 70",
         "definition": "0.5",
         "type": "const"
     },
-    "epsSoil": {
+    "epsilonSoil": {
         "description": "Emissivity of the soil, including possible effect of mulch",
         "unit": "-",
-        "reference": "Stanghellini et al. (2024), Eq. 3.3",
+        "reference": "Stanghellini et al. (2024), Eq. 3.3 & Section 3.2.1",
         "definition": "1",
         "type": "const"
     },
@@ -212,14 +243,14 @@ tunnel_def = {
         "description": "Heat transfer coefficient of the cover material (including possible screens)",
         "unit": "W/m2/K",
         "reference": "Stanghellini et al. (2024), Eq. 3.7",
-        "definition": "6",
+        "definition": "4",
         "type": "const"
     },
     "alphaSoil": {
         "description": "Heat transfer coefficient of the soil (including possible mulches)",
         "unit": "W/m2/K",
         "reference": "Stanghellini et al. (2024), Eq. 3.68",
-        "definition": "5",
+        "definition": "4",
         "type": "const"
     }
 }
