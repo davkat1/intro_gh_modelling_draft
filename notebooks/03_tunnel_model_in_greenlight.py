@@ -27,7 +27,7 @@
 # %% [markdown]
 # [GreenLight](https://github.com/davkat1/greenlight) has been originally developed as [an open-source model for greenhouses with a tomato crop](https://doi.org/10.1016/j.biosystemseng.2020.03.010). Since then, it has been expanded to be used as a modelling platform where [various model components can be combined](https://github.com/davkat1/GreenLight/blob/main/docs/modifying_and_combining_models.md). GreenLight is therefore no longer a singular model, but allows to define and run models in a structured way, which will be used in this chapter.
 #
-# This book is based on **GreenLight v2.0.5**, and assumes that this is the version installed in the running system.
+# This course is based on **GreenLight v2.0.5**, and assumes that this is the version installed in the running system.
 
 # %% [markdown]
 # ## Defining models in GreenLight
@@ -261,7 +261,7 @@ tunnel_def = {
 # ## 3.3 Defining `tTunnel` and adding it to the model definition
 
 # %% [markdown]
-# In the previous chapter, we solved an algebraic equation and found that in the tunnel model described by the textbook in Equation 3.9, 
+# In the previous lesson, we solved an algebraic equation and found that in the tunnel model described by the textbook in Equation 3.9, 
 #
 # $$
 # \begin{align}
