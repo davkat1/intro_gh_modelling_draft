@@ -17,9 +17,14 @@
 # # 2. Interactive greenhouse "tunnel" model
 
 # %% [markdown]
-# ![Tunnel image by Richard Webb](../Figures/geograph-4408046-by-Richard-Webb.jpg)<br>
+# ```{figure} ../Figures/geograph-4408046-by-Richard-Webb.jpg
+# ---
+# width: 100%
+# align: center
+# ---
 # **Figure 2.1.** A tunnel greenhouse.<br>
 # Image copyright Richard Webb, CC BY-SA 2.0, https://www.geograph.org.uk/reuse.php?id=4408046
+# ```
 
 # %% [markdown]
 # ## 2.1 In this lesson

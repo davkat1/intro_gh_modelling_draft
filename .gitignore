@@ -3,3 +3,6 @@
 notebooks/output
 _build
 *.jpg
+*.vsdx
+*.png
+*.~vsdx
