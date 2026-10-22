@@ -13,15 +13,9 @@ project:
     - horticulture
   authors:
     - David Katzin, david.katzin@wur.nl
-  # github:
-  # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
-  toc:
-    - file: notebooks/01_introduction.ipynb
-    - file: notebooks/02_tunnel_model_with_sliders.ipynb
-    - file: notebooks/03_tunnel_model_in_greenlight.ipynb
-    - file: notebooks/04_from_steady_state_to_dynamic_model.ipynb
-    - file: notebooks/05_including_a_crop_model.ipynb
   jupyter: true
+extends:
+  - toc.yml
 site:
   template: book-theme
   # options:

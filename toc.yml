@@ -1,0 +1,19 @@
+# github:
+# To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+version: 1
+
+project:
+  toc:
+    - file: notebooks/01_introduction/01_introduction.ipynb
+
+    - title: Lesson 1 - A simple crop model
+      children:
+        - file: notebooks/02_a_simple_crop_model/201_introduction.ipynb
+        - file: notebooks/02_a_simple_crop_model/202_variables_of_the_model.ipynb
+        - file: notebooks/02_a_simple_crop_model/202_a_simple_crop_model.ipynb
+
+    - title: Lesson 2 - A tunnel greenhouse
+      children:
+        - file: notebooks/03_tunnel_model_in_greenlight.ipynb
+    - file: notebooks/04_from_steady_state_to_dynamic_model.ipynb
+    - file: notebooks/05_including_a_crop_model.ipynb
