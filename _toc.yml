@@ -1,0 +1,13 @@
+format: jb-book
+root: notebooks/00_introduction/001_introduction
+parts:
+  - caption: Lesson 1 - A simple crop model
+    chapters:
+      - file: notebooks/01_a_simple_crop_model/101_introduction
+      - file: notebooks/01_a_simple_crop_model/102_variables_of_the_model
+      - file: notebooks/01_a_simple_crop_model/103_a_simple_crop_model
+  - caption: Lesson 3
+    chapters:
+      - file: notebooks/03_tunnel_model_in_greenlight
+      - file: notebooks/04_from_steady_state_to_dynamic_model
+      - file: notebooks/05_including_a_crop_model
