@@ -6,6 +6,7 @@ repository:
   branch: main
 launch_buttons:
   thebe: true
+  binderhub_url: https://2i2c.mybinder.org/
 execute:
   execute_notebooks: force
 
