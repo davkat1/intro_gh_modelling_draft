@@ -14,7 +14,18 @@
 # ---
 
 # %% [markdown]
-# # Including a crop model
+# # Implementing the crop model in GreenLight
+
+# %% [markdown]
+# In this section, we will implement the crop model that we described in the previous section by using the [GreenLight modelling platform](https://github.com/davkat1/greenlight).  
+
+# %% [markdown]
+# ## What is GreenLight?
+
+# %% [markdown]
+# [GreenLight](https://github.com/davkat1/greenlight) has been originally developed as [an open-source model for greenhouses with a tomato crop](https://doi.org/10.1016/j.biosystemseng.2020.03.010). Since then, it has been expanded to be used as a modelling platform where [various model components can be combined](https://greenlight.readthedocs.io/en/latest/user/modifying_and_combining_models.html). GreenLight is therefore no longer a singular model, but allows to define and run models in a structured way, which will be used in this chapter.
+#
+# This course is based on **GreenLight v2.0.5**.
 
 # %%
 """ 
@@ -35,93 +46,46 @@ import pandas as pd
 import greenlight
 
 # %% [markdown]
-# ## In this lesson
+# ## Defining models in GreenLight
 
 # %% [markdown]
-# In this lesson we will construct a simple crop model, based on a small part of Chapter 2 in [the course textbook](https://doi.org/10.1163/9789004697041). Since the goal here is to create a very simple model, we will focus on only two equations: Eq. 2.25 (pg. 49) and Eq. 2.26 (pg. 50). We will see that even with such a small model, the translation from a description in literature to a running, functioning model, is not so straightforward.
+# Models are defined in GreenLight in a structure that is similar to what we've constructed in the previous chapter: using a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables. Like in the previous chapter, this is actually a dictionary of dictionaries. The *keys* of the model definition dictionary are the names of the variables. For each variable, the corresponding *value* is another dictionary, with the following *keys*:
+# - `description` - a description of the variable
+# - `unit` - the unit that the variable's values are in
+# - `reference` - a reference describing where the variable definition came from
+# - `definition` - a definition of the variable. This may be a single value, input data, or a calculation based on other variables
+# - `type` - the type of variable, which allows GreenLight to know how to process the variable
 
 # %% [markdown]
-# ### Exercise
+# ## Variable types in GreenLight
 
 # %% [markdown]
+# Variables in GreenLight have 5 possible types:
+# - `const` - indicates that the variable stays constant throughout a model run
+# - `input` - indicates that the values for the variable are provided as an input
+# - `aux` - an auxiliary variable: a variable that is calculated based on other variables
+# - `state` - a value that is defined by an ordinary differential equation
+# - `function` - a function that works as a shorthand for repeated calculations
+#
+# In this course, we will focus only on the first 4 `type`s of variables: `const`, `input`, `aux`, and `state`.
+
+# %% [markdown]
+# ## Exercise 1
+
+# %% [markdown]
+# ```{exercise}
+# :label: exercise-crop-model-dict
+# :enumerated: true
+#
 # Examine Eq. 2.25 and Eq. 2.26 in the course textbook (pp. 49-50), and write down the following:
 # - Which variables are used in these equations?
 # - For each variable:
 #     - What is it called in the equations?
 #     - What does it represent?
-#     - What unit is it in?
+#     - What units is it in?
 #     - Is it a constant value, or does it evolve through time?
 #     - Is it an input (the values should be given to the model), calculated based on other variables, or calculated using a differential equation?
-
-# %% [markdown]
-# #### Note on differential equations
-
-# %% [markdown]
-# *Add image: https://commons.wikimedia.org/wiki/File:Parabolic_trajectory.svg*
-#
-# If the concept of differential equations is unfamiliar to you, at this point it is sufficient to note that in Eq. 2.25, the notation $\mathrm{d}W/\mathrm{d}t$ indicates "the rate of change of $W$ as time ($t$) passes". Thus, $\mathrm{d}W/\mathrm{d}t$ indicates the *derivative* (or *differential*) of $W$ with respect to $t$. Another notation for this concept which you may have seen in the past is $y'$. In this case the derived variable is $W$, so the corresponding notation would be $W'$. 
-#
-# What this means in practice is that the right hand side of Eq. 2.25: 
-# $$\mathrm{d}W/\mathrm{d}t = LUE \cdot \left( 1 - e^{-k \cdot LAI} \right) \cdot I$$
-# is *the rate of change of $W$*. Thus, if $LUE \cdot \left( 1 - e^{-k \cdot LAI} \right) \cdot I = $ 1 g m<sup>-2</sup> d<sup>-1</sup>, then $W$ grows at a rate of 1 g m<sup>-2</sup> d<sup>-1</sup>.
-#
-# For more information, see [Ordinary differential equation on Wikipedia](https://en.wikipedia.org/wiki/Ordinary_differential_equation) and this chapter from [Python Programming and Numerical Methods - A Guide for Engineers and Scientists](https://pythonnumericalmethods.studentorg.berkeley.edu/notebooks/chapter22.00-ODE-Initial-Value-Problems.html).
-
-# %% [markdown]
-# ### Solution
-
-# %% [markdown]
-# #### The variables in Eq. 2.25 are:
-# - $W$, representing **crop growth rate**
-#     - Its unit is g m<sup>-2</sup>
-#     - Its value evolves through time
-#     - It is calculated based on other variables, using a differential equation
-# **Note:** The unit of $\mathrm{d}W/\mathrm{d}t$, which is the rate of change of $W$, is g m<sup>-2</sup> d<sup>-1</sup>. Thus the unit of $W$ itself does not include the time factor d<sup>-1</sup> ("per day"). <br><br>
-#
-# - $LUE$, representing **light use efficiency**
-#     - Its unit is g MJ<sup>-1</sup> PAR
-#     - "Equation 2.25 assumes a constant LUE" (pg. 49). Our goal here is to create a simple crop model, so we will stick to this assumption. However, see the discussion on pg. 49 for other possible approaches
-#     - As a constant value, it should be given to the model<br><br>
-#
-# - $k$, representing **light extinction coefficient**
-#     - It is unitless: note that "$\left( 1 - e^{-k \cdot LAI} \right)$ represents the fraction of intercepted light". As a fraction it is a unitless value. This implies that $e^{-k \cdot LAI}$ and since we may consider $LAI$ as unitless (m<sup>2</sup> leaves per m<sup>2</sup> floor, resulting in $m^{2}/m^{2} = 1$), then $k$ must also be unitless
-#     - Consider the text below Eq. 2.17, pg. 39: "k is not strictly constant [...] however, applying a constant k value provides an accurate enough estimation [...]". Again, since we would like to have a simple model, a constant value is currently sufficient
-#     - As a constant value, it should be given to the model<br><br>
-#
-# - $LAI$, representing **leaf area index**
-#     - See pg. 38: its unit is m<sup>2</sup> leaves per m<sup>2</sup> ground area, which we may consider as unitless ($m^{2}/m^{2} = 1$)
-#     - Its value evolves through time
-#     - It is calculated based on other variables, see Eq. 2.26. This equation describeds the difference between "$LAI$ on day $t$ and day $t-1$, so it may be considered a *difference equation* or a differential equation<br><br>
-#
-# - $I$, representing **daily light sum**
-#     - Its unit is g MJ<sup>-1</sup> PAR m<sup>-2</sup>
-#     - Its value evolves in time, and should be given to the model<br><br>
-#
-# #### The variables in Eq. 2.26 are:
-# - $LAI$, see above<br><br>
-#
-# - $GR$, representing **crop growth rate**
-#     - Its unit is g m<sup>-2</sup> d<sup>-1</sup>
-#     - Its value evolves through time
-#     - It is calculated based on other variables. In fact, this is precisely the value $\mathrm{d}W/\mathrm{d}t$<br><br>
-#
-# - $F_{leaves}$, representing **fraction partitioned to the leaves**
-#     - As a fraction, it is unitless
-#     - Its value evolves through time: a vegetative crop (for example, young tomato plant with no flowers) has a high $F_{leaves}$, while a mature crop with many fruit has a lower $F_{leaves}$
-#     - This variable depends on other variables, see for example pg. 52<br><br>
-#     
-# - $SLA$, representing **specific leaf area**
-#     - Its unit is cm<sup>2</sup> g<sup>-1</sup>
-#     - Its value evolves through time: a vegetative crop (for example, young tomato plant with no flowers) has a high $F_{leaves}$, while a mature crop with many fruit has a lower $F_{leaves}$
-#     - See pg. 50: "[SLA] varies between crop species [...] as well as with plant age, season and environmental conditions [...], but it is nonetheless often taken as a constant"
-
-# %% [markdown]
-# ### Reflection
-
-# %% [markdown]
-# Take a moment to reflect on the last exercise: how was it to list and describe all the variables of a simple (2 equations) model? Was it straightforward? Or did it require some detective work? Did you need the help of the provided solution? Does the solution require creativity and inventiveness?
-
-# %%
+# ```
 
 # %%
 crop_definition = {
