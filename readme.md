@@ -6,5 +6,4 @@ The current repository is made public online to test integration with Jupyter Bo
 
 Stay tuned for the official launch of the course!
 
-David Katzin, Wageningen University & Research
-October 2026
+David Katzin, Wageningen University & Research, October 2026
