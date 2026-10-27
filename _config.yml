@@ -1,6 +1,12 @@
 title: Introduction to greenhouse modelling
 author: David Katzin, david.katzin@wur.nl
 logo: logo.png
+myst_html_meta:
+      "description lang=en": "A hands-on book about crop modelling with editable Python examples."
+      "keywords": "crop models, python, jupyter book, agriculture"
+      "property=og:title": "My Book Title"
+html:
+  favicon: favicon.ico
 repository:
   url: https://github.com/davkat1/intro_gh_modelling_draft/
   branch: main
@@ -9,7 +15,9 @@ launch_buttons:
   binderhub_url: https://2i2c.mybinder.org/
 execute:
   execute_notebooks: force
-
+sphinx:
+  extra_extensions:
+    - sphinx_exercise
 # Add a bibtex file so that we can create citations
 bibtex_bibfiles:
   - references.bib

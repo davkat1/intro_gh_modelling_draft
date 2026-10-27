@@ -25,7 +25,6 @@
 # %% [markdown]
 # ```{exercise}
 # :label: exercise-crop-model-variables
-# :enumerated: true
 #
 # Examine Eq. 2.25 and Eq. 2.26 in the course textbook (pp. 49-50), and write down the following:
 # - Which variables are used in these equations?
@@ -74,7 +73,6 @@
 # %% [markdown]
 # ```{solution} exercise-crop-model-variables
 # :label: solution-crop-model-variables
-# :enumerated: true
 # :class: dropdown
 #
 # **<span style="font-size: 1.2em">The variables in Eq. 2.25 are:</span>**

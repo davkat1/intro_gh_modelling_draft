@@ -25,25 +25,26 @@
 # %% [markdown]
 # [GreenLight](https://github.com/davkat1/greenlight) has been originally developed as [an open-source model for greenhouses with a tomato crop](https://doi.org/10.1016/j.biosystemseng.2020.03.010). Since then, it has been expanded to be used as a modelling platform where [various model components can be combined](https://greenlight.readthedocs.io/en/latest/user/modifying_and_combining_models.html). GreenLight is therefore no longer a singular model, but allows to define and run models in a structured way, which will be used in this chapter.
 #
-# This course is based on **GreenLight v2.0.5**.
+# This course is based on **GreenLight v2.0.7**.
+
+# %% [markdown]
+# ## Using live code in this page
+
+# %% [markdown]
+# In this page we will be using **live code** for the first time in this course. To start, click the rocket button (🚀) at the top of this page, above the title. Then choose "▶ Live Code". The loading may take some time so it is good to start the Live Code before reading on, so it is ready when you need it.
+#
+# If the Live Code fails to load for whatever reason, you can try clicking the rocket button (🚀) and choosing **Binder** instead.
+#
+# The material in this page contains **editable Python code blocks**. Once the Live Code engine is ready (you should see a text under the page's title, stating something like "Launching from mybinder.org: **ready**), all code blocks become editable. Simply click anywhere on the text in the code block, edit in, and then click *run*. As a first try, you may try the code below.
 
 # %%
-""" 
-Imports needed for running the code
 """
-# Ignore warnings during ODE solving
-# Typically such warnings should be checked,
-# but for the current exercise it is not important
-import warnings
-warnings.filterwarnings("ignore")
+Editable code block for testing
+"""
 
-import os
+out_text = "Hi! I'm <...enter whatever you would like here...>!"
 
-from IPython.display import display
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-import greenlight
+print(out_text)
 
 # %% [markdown]
 # ## Defining models in GreenLight
@@ -88,6 +89,26 @@ import greenlight
 # ```
 
 # %%
+""" 
+Imports needed for running the code
+"""
+# Ignore warnings during ODE solving
+# Typically such warnings should be checked,
+# but for the current exercise it is not important
+import warnings
+warnings.filterwarnings("ignore")
+
+import os
+
+from IPython.display import display
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from urllib.request import urlretrieve
+
+import greenlight
+
+# %%
 crop_definition = {
     "W": {
         "description": "Crop dry mass",
@@ -125,7 +146,7 @@ crop_definition = {
      "I": {
          "description": "Light intensity",
          "unit": "W/m2",
-         "definition": "I",
+         "definition": "0.5*iSun",
          "type": "input",
          "reference": "Stanghellini (2019), pg. 49. " \
                       "Since the default time unit in GreenLight is seconds, " \
@@ -172,9 +193,12 @@ options = {
     }
 }
 
+url = "https://raw.githubusercontent.com/davkat1/intro_gh_modelling_draft/refs/heads/main/notebooks/input/example_weather.csv"
+urlretrieve(url,"example_weather.csv")
+
 crop_mdl = greenlight.GreenLight(
     base_path=os.getcwd(), 
-    input_prompt=[crop_definition, os.path.join("input", "example_weather.csv"), options], 
+    input_prompt=[crop_definition, os.path.join("example_weather.csv"), options], 
     output_path=os.path.join("output", "crop_output.csv")
 )
 crop_mdl.run()

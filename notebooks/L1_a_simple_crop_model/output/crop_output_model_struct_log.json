@@ -1,0 +1,120 @@
+{
+    "info": "Automatically generated model structure log. See accompanying simulation log for more info",
+    "constants": {
+        "LUE": {
+            "definition": "4.3",
+            "formatted definition": "4.3",
+            "type": "const",
+            "unit": "g crop weight per MJ PAR",
+            "description": "Light use efficiency",
+            "reference": "Stanghellini (2019), pg. 49. 4.3 is chosen as a middle value, see Fig. 2.13"
+        },
+        "k": {
+            "definition": "0.7",
+            "formatted definition": "0.7",
+            "type": "const",
+            "unit": "-",
+            "description": "Light extinction coefficient",
+            "reference": "Stanghellini (2019), pg. 49. The value of 0.7 is based on Stanghellini (2019), pg. 39: 'For many greenhouse crops, k has a value between 0.6 and 0.8'"
+        },
+        "fLeaves": {
+            "definition": "0.8",
+            "formatted definition": "0.8",
+            "type": "const",
+            "unit": "-",
+            "description": "Fraction of crop dry mass partitioned to the leaves",
+            "reference": "Stanghellini (2019), Eq. 2.26. The value of 0.8 is chosen to represent a young vegetative crop"
+        },
+        "SLA": {
+            "definition": "250",
+            "formatted definition": "250",
+            "type": "const",
+            "unit": "cm2/g",
+            "description": "Specific leaf area",
+            "reference": "Stanghellini (2019), Box 2.26. The value of 250 is a middle value for tomato, See Stanghellini (2019), Table 2.1"
+        }
+    },
+    "states": {
+        "W": {
+            "definition": "LUE * (1 - exp(-k*LAI)) * I * 1e-6",
+            "formatted definition": "LUE * (1 - (np.exp(-k*LAI))) * I * 1e-6",
+            "type": "state",
+            "unit": "g/m2",
+            "description": "Crop dry mass",
+            "reference": "Stanghellini (2019), Eq. 2.25. Note that in Eq. 2.5 (Stanghellini 2019), dW/dt is given in g/m2/day. However, solar light is expressed there as I, in MJ/m2/day. Here we use I instead in W/m2 = J/m2/s (see reference for I). This is multiplied by 1e-6, to convert to MW/m2 = MJ/m2/s. Thus we use I*1e-6 which is in MJ/m2/s, instead of MJ/m2/day. Therefore the unit for dW/dt becomes g/m2/s instead of g/m2/day. The default time unit in GreenLight is s, so W is automatically in g/m2.The initial value of 75 g/m2 is based on Fig. 2.13 (Stanghellini 2019)As a reasonable value for a small crop"
+        }
+    },
+    "auxiliary states": {
+        "I": {
+            "definition": "0.5*iSun",
+            "formatted definition": "0.5*iSun",
+            "type": "aux",
+            "unit": "W/m2",
+            "description": "Light intensity",
+            "reference": "Stanghellini (2019), pg. 49. Since the default time unit in GreenLight is seconds, It is more convenient to use I in J/m2/s = W/m2 instead of MJ/m2/day. This is adjusted in the definition of W, see there"
+        },
+        "LAI": {
+            "definition": "W * fLeaves * SLA / 10000",
+            "formatted definition": "W * fLeaves * SLA / 10000",
+            "type": "aux",
+            "unit": "m2 leaf per m2 floor",
+            "description": "Leaf area index",
+            "reference": "Stanghellini (2019), Eq. 2.26. Note that according to the Eq., the LAI growth rate is equal to crop growth rate times fLeaves * SLA / 10000. Therefore LAI is equal to crop dry mass times the same factor"
+        }
+    },
+    "inputs": {
+        "iSun": {
+            "definition": "iSun",
+            "formatted definition": "iSun",
+            "type": "input",
+            "unit": "W m**-2",
+            "description": "Solar radiation",
+            "reference": ""
+        },
+        "tOut": {
+            "definition": "tOut",
+            "formatted definition": "tOut",
+            "type": "input",
+            "unit": "°C",
+            "description": "Temperature of the air outside the greenhouse",
+            "reference": ""
+        },
+        "tSky": {
+            "definition": "tSky",
+            "formatted definition": "tSky",
+            "type": "input",
+            "unit": "°C",
+            "description": "Apparent temperature of the sky (depends, among other things, on cloudiness)",
+            "reference": ""
+        },
+        "tSoil": {
+            "definition": "tSoil",
+            "formatted definition": "tSoil",
+            "type": "input",
+            "unit": "°C",
+            "description": "Temperature of the soil surface",
+            "reference": ""
+        }
+    },
+    "options": {
+        "t_start": "0",
+        "t_end": "8640000",
+        "formatting_mode": "numpy",
+        "expand_variables": "False",
+        "expand_functions": "True",
+        "solving_method": "solve_ivp_from_str",
+        "interpolation": "linear",
+        "solver": "BDF",
+        "first_step": "None",
+        "max_step": "3600",
+        "atol": "1e-3",
+        "rtol": "1e-6",
+        "output_step": "300",
+        "t_eval": "300",
+        "clip_large_nums": "True",
+        "nans_to_zeros": "True",
+        "warn_loading": "False",
+        "warn_runtime": "False",
+        "log_runtime_warnings": "True"
+    }
+}
