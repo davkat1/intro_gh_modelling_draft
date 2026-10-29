@@ -76,11 +76,11 @@
 # :class: dropdown
 #
 # **<span style="font-size: 1.2em">The variables in Eq. 2.25 are:</span>**
-# - $W$, representing **crop growth rate**
+# - $W$, representing **crop dry mass**
 #     - Its unit is g m<sup>-2</sup>
 #     - Its value evolves through time
 #     - It is calculated based on other variables, using a differential equation
-# **Note:** The unit of $\mathrm{d}W/\mathrm{d}t$, which is the rate of change of $W$, is g m<sup>-2</sup> d<sup>-1</sup>. Thus the unit of $W$ itself does not include the time factor d<sup>-1</sup> ("per day"). <br><br>
+# **Note:** The expression $\mathrm{d}W/\mathrm{d}t$ represents crop growth rate, with the unit g m<sup>-2</sup> d<sup>-1</sup>. This expression is the rate of change of $W$. The unit of $W$ itself is therefore the the unit of $\mathrm{d}W/\mathrm{d}t$ without time factor d<sup>-1</sup> ("per day"), which is g m<sup>-2</sup>. We can see (for instance in Figure 2.13 of the textbook) that this variable represents dry mass.<br><br>
 #
 # - $LUE$, representing **light use efficiency**
 #     - Its unit is g MJ<sup>-1</sup> PAR
@@ -95,10 +95,10 @@
 # - $LAI$, representing **leaf area index**
 #     - See pg. 38: its unit is m<sup>2</sup> leaves per m<sup>2</sup> ground area, which we may consider as unitless ($m^{2}/m^{2} = 1$)
 #     - Its value evolves through time
-#     - It is calculated based on other variables, see Eq. 2.26. This equation describeds the difference between "$LAI$ on day $t$ and day $t-1$, so it may be considered a *difference equation* or a differential equation<br><br>
+#     - It is calculated based on other variables, see Eq. 2.26. This equation describes the difference between "$LAI$ on day $t$ and day $t-1$, so it may be considered a *difference equation* or a differential equation<br><br>
 #
 # - $I$, representing **daily light sum**
-#     - Its unit is g MJ<sup>-1</sup> PAR m<sup>-2</sup>
+#     - Its unit is MJ<sup>-1</sup> PAR m<sup>-2</sup>
 #     - Its value evolves in time, and should be given to the model<br><br>
 #
 # **<span style="font-size: 1.2em">The variables in Eq. 2.26 are:</span>**

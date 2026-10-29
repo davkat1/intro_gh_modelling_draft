@@ -10,6 +10,9 @@ html:
 repository:
   url: https://github.com/davkat1/intro_gh_modelling_draft/
   branch: main
+parse:
+  myst_enable_extensions:
+    - amsmath
 launch_buttons:
   thebe: true
   binderhub_url: https://2i2c.mybinder.org/

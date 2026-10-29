@@ -13,31 +13,20 @@
 #     name: python3
 # ---
 
-# %% [markdown]
+# %% [markdown] editable=true slideshow={"slide_type": ""}
 # # Implementing the crop model in GreenLight
 
-# %% [markdown]
-# In this section, we will implement the crop model that we described in the previous section by using the [GreenLight modelling platform](https://github.com/davkat1/greenlight).  
-
-# %% [markdown]
-# ## What is GreenLight?
-
-# %% [markdown]
-# [GreenLight](https://github.com/davkat1/greenlight) has been originally developed as [an open-source model for greenhouses with a tomato crop](https://doi.org/10.1016/j.biosystemseng.2020.03.010). Since then, it has been expanded to be used as a modelling platform where [various model components can be combined](https://greenlight.readthedocs.io/en/latest/user/modifying_and_combining_models.html). GreenLight is therefore no longer a singular model, but allows to define and run models in a structured way, which will be used in this chapter.
-#
-# This course is based on **GreenLight v2.0.7**.
-
-# %% [markdown]
+# %% [markdown] editable=true slideshow={"slide_type": ""}
 # ## Using live code in this page
 
-# %% [markdown]
+# %% [markdown] editable=true slideshow={"slide_type": ""}
 # In this page we will be using **live code** for the first time in this course. To start, click the rocket button (🚀) at the top of this page, above the title. Then choose "▶ Live Code". The loading may take some time so it is good to start the Live Code before reading on, so it is ready when you need it.
 #
 # If the Live Code fails to load for whatever reason, you can try clicking the rocket button (🚀) and choosing **Binder** instead.
 #
 # The material in this page contains **editable Python code blocks**. Once the Live Code engine is ready (you should see a text under the page's title, stating something like "Launching from mybinder.org: **ready**), all code blocks become editable. Simply click anywhere on the text in the code block, edit in, and then click *run*. As a first try, you may try the code below.
 
-# %%
+# %% editable=true slideshow={"slide_type": ""} tags=["remove-output"]
 """
 Editable code block for testing
 """
@@ -46,11 +35,19 @@ out_text = "Hi! I'm <...enter whatever you would like here...>!"
 
 print(out_text)
 
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ## Implementing the crop model in GreenLight
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# In this section, we will implement the crop model that we described in the previous section by using the [GreenLight modelling platform](https://github.com/davkat1/greenlight).  [GreenLight](https://github.com/davkat1/greenlight) has been originally developed as [an open-source model for greenhouses with a tomato crop](https://doi.org/10.1016/j.biosystemseng.2020.03.010). Since then, it has been expanded to be used as a modelling platform where [various model components can be combined](https://greenlight.readthedocs.io/en/latest/user/modifying_and_combining_models.html). GreenLight is therefore no longer a singular model, but allows to define and run models in a structured way, which will be used in this chapter.
+#
+# This course is based on **GreenLight v2.0.7**.
+
 # %% [markdown]
 # ## Defining models in GreenLight
 
 # %% [markdown]
-# Models are defined in GreenLight in a structure that is similar to what we've constructed in the previous chapter: using a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables. Like in the previous chapter, this is actually a dictionary of dictionaries. The *keys* of the model definition dictionary are the names of the variables. For each variable, the corresponding *value* is another dictionary, with the following *keys*:
+# Models are defined in GreenLight using a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables. Each variable is itself defined using a dictionary, so the model definition is in fact a dictionary of dictionaries. The *keys* of the model definition dictionary are the names of the variables. For each variable, the corresponding *value* is another dictionary, with the following *keys*:
 # - `description` - a description of the variable
 # - `unit` - the unit that the variable's values are in
 # - `reference` - a reference describing where the variable definition came from
@@ -70,202 +67,287 @@ print(out_text)
 #
 # In this course, we will focus only on the first 4 `type`s of variables: `const`, `input`, `aux`, and `state`.
 
-# %% [markdown]
-# ## Exercise 1
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ## Exercise 2: Defining the crop model in a dict
 
-# %% [markdown]
+# %% [markdown] editable=true slideshow={"slide_type": ""}
 # ```{exercise}
-# :label: exercise-crop-model-dict
+# :label: exercise-crop-definition-1
 # :enumerated: true
 #
-# Examine Eq. 2.25 and Eq. 2.26 in the course textbook (pp. 49-50), and write down the following:
-# - Which variables are used in these equations?
-# - For each variable:
-#     - What is it called in the equations?
-#     - What does it represent?
-#     - What units is it in?
-#     - Is it a constant value, or does it evolve through time?
-#     - Is it an input (the values should be given to the model), calculated based on other variables, or calculated using a differential equation?
+# Go back to [Solution 1 from the previous page](../102_variables_of_the_model.html#Solution-1) and create a model definition dictionary which implements the information there. Follow the example in the next code block, and complete it with the rest of the variables. For now, fill only the keys `desription`, `unit`, `type`, and `reference`, by using the following considerations:
+# <dl>
+#     <dt>- **Description:** A textual description of what the variable represents</dt>
+#     <dt>- **Unit:** The units of the variables. For unitless variables, set the `unit` as `"-"`.</dt>
+#     <dt>- **Type:**</dt>
+#         <dd>- Variables defined by a differential equation have a type `"state"`</dd>
+#         <dd>- Constant variables have a type `"const"`</dd>
+#         <dd>- Variables that have velus that are given to the model, but are not constant, have a type `"input"`</dd>
+#         <dd>- Variables that are calculated based on other variables have a type `"aux"`</dd>
+#     <dt>- **Reference:** The goal of this field is to allow future users of the model to understand and check the choices made regarding the described variable. In this case, you may give the reference `"Stanghellini (2019)"`, and include the Equation where the variable is described.</dt>
+# </dl>
 # ```
 
-# %%
-""" 
-Imports needed for running the code
+# %% editable=true slideshow={"slide_type": ""} tags=["remove-output"]
 """
-# Ignore warnings during ODE solving
-# Typically such warnings should be checked,
-# but for the current exercise it is not important
-import warnings
-warnings.filterwarnings("ignore")
+Exercise 2: complete the crop definition dict with description, unit, type, and reference
+"""
 
-import os
+# Method for displaying dicts in a friendly way ("pretty print")
+from pprint import pprint
 
-from IPython.display import display
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from urllib.request import urlretrieve
-
-import greenlight
-
-# %%
 crop_definition = {
     "W": {
         "description": "Crop dry mass",
         "unit": "g/m2",
-        "definition": "LUE * (1 - exp(-k*LAI)) * I * 1e-6",
         "type": "state",
-        "init": "75",
-        "reference": "Stanghellini (2019), Eq. 2.25. " \
-                    "Note that in Eq. 2.5 (Stanghellini 2019), dW/dt is given in g/m2/day. " \
-                    "However, solar light is expressed there as I, in MJ/m2/day. " \
-                    "Here we use I instead in W/m2 = J/m2/s (see reference for I). " \
-                    "This is multiplied by 1e-6, to convert to MW/m2 = MJ/m2/s. " \
-                    "Thus we use I*1e-6 which is in MJ/m2/s, instead of MJ/m2/day. " \
-                    "Therefore the unit for dW/dt becomes g/m2/s instead of g/m2/day. " \
-                    "The default time unit in GreenLight is s, so W is automatically in g/m2." \
-                    "The initial value of 75 g/m2 is based on Fig. 2.13 (Stanghellini 2019)" \
-                    "As a reasonable value for a small crop"
+        "reference": "Stanghellini (2019), Eq. 2.25."
     },
-     "LUE": {
-         "description": "Light use efficiency",
-         "unit": "g crop weight per MJ PAR",
-         "definition": "4.3",
-         "type": "const",
-         "reference": "Stanghellini (2019), pg. 49. 4.3 is chosen as a middle value, see Fig. 2.13"
+    "LUE": {
+        "description": "Light use efficiency",
+        "unit": "g crop weight per MJ PAR",
+        "type": "const",
+        "reference": "Stanghellini (2019), Eq. 2.25"
     },
-     "k": {
-         "description": "Light extinction coefficient",
-         "unit": "-",
-         "definition": "0.7",
-         "type": "const",
-         "reference": "Stanghellini (2019), pg. 49. " \
-                      "The value of 0.7 is based on Stanghellini (2019), pg. 39: " \
-                      "'For many greenhouse crops, k has a value between 0.6 and 0.8'"
+    "Continue here...": {
+        
+    }
+}
+
+# Display the above dict
+pprint("crop_definition dict:")
+pprint(crop_definition)
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ### Solution 2
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ```{solution} exercise-crop-definition-1
+# :label: solution-crop-definition-1
+# ```
+
+# %% editable=true slideshow={"slide_type": ""} tags=["hide-input", "remove-output"]
+crop_definition = {
+    "W": {
+        "description": "Crop dry mass",
+        "unit": "g/m2",
+        "type": "state",
+        "reference": "Stanghellini (2019), Eq. 2.25"
     },
-     "I": {
-         "description": "Light intensity",
-         "unit": "W/m2",
-         "definition": "0.5*iSun",
-         "type": "input",
-         "reference": "Stanghellini (2019), pg. 49. " \
-                      "Since the default time unit in GreenLight is seconds, " \
-                      "It is more convenient to use I in J/m2/s = W/m2 instead of MJ/m2/day. "\
-                      "This is adjusted in the definition of W, see there"
+    "LUE": {
+        "description": "Light use efficiency",
+        "unit": "g crop weight per MJ PAR",
+        "type": "const",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "k": {
+        "description": "Light extinction coefficient",
+        "unit": "-",
+        "type": "const",
+        "reference": "Stanghellini (2019), Eq. 2.25"
     },
     "LAI": {
         "description": "Leaf area index",
         "unit": "m2 leaf per m2 floor",
-        "definition": "W * fLeaves * SLA / 10000",
+        "type": "state",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "I": {
+        "description": "Daily light sum",
+        "unit": "MJ PAR per m2",
+        "type": "input",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "GR": {
+        "description": "Crop growth rate",
+        "unit": "g/m2/d",
         "type": "aux",
-        "reference": "Stanghellini (2019), Eq. 2.26. " \
-                     "Note that according to the Eq., the LAI growth rate is equal to " \
-                     "crop growth rate times fLeaves * SLA / 10000. " \
-                     "Therefore LAI is equal to crop dry mass times the same factor" 
+        "reference": "Stanghellini (2019), Eq. 2.26"
     },
-     "fLeaves": {
-         "description": "Fraction of crop dry mass partitioned to the leaves",
-         "unit": "-",
-         "definition": "0.8",
-         "type": "const",
-         "reference": "Stanghellini (2019), Eq. 2.26. " \
-                      "The value of 0.8 is chosen to represent a young vegetative crop"
+    "fLeaves": {
+        "description": "Fraction of crop dry mass partitioned to the leaves",
+        "unit": "-",
+        "type": "aux",
+        "reference": "Stanghellini (2019), Eq. 2.26"
     },
-     "SLA": {
-         "description": "Specific leaf area",
-         "unit": "cm2/g",
-         "definition": "250",
-         "type": "const",
-         "reference": "Stanghellini (2019), Box 2.26. " \
-                      "The value of 250 is a middle value for tomato, "\
-                      "See Stanghellini (2019), Table 2.1"
+    "SLA": {
+        "description": "Specific leaf area",
+        "unit": "cm2/g",
+        "type": "const",
+        "reference": "Stanghellini (2019), Eq. 2.26"
     }   
  }
 
-n_days = 100
+# Display the above dict
+pprint("crop_definition dict:")
+pprint(crop_definition)
 
-options = {
-    "options": {
-        "t_start":"0",
-        "t_end": str(n_days * 24 * 60 * 60),
-        "output_step": "300",
-        "t_eval": "300"
+# %% [markdown]
+# ## Reorganizing the model equations
+
+# %% [markdown]
+# Before moving on, it is helpful to slightly reorganize the model equations:
+#
+# \begin{equation*}
+# \mathrm{d}W/\mathrm{d}t = LUE \cdot \left( 1 - e^{-k \cdot LAI} \right) \cdot I
+# \tag{2.25}
+# \end{equation*}
+#
+# \begin{equation*}
+# LAI_{t} = LAI_{t-1} + GR \cdot F_{leaves} \cdot SLA / 10000
+# \tag{2.26}
+# \end{equation*}
+#
+# Equation 2.26 can be rewritten as:
+# \begin{equation*}
+# LAI_{t} - LAI_{t-1} = GR \cdot F_{leaves} \cdot SLA / 10000
+# \tag{2.26a}
+# \end{equation*}
+#
+# And since $LAI_{t} - LAI_{t-1}$ is the difference in $LAI$ from one day to the next, the above is basically the same as:
+# \begin{equation*}
+# \frac{\mathrm{d}LAI}{\mathrm{d}t} = GR \cdot F_{leaves} \cdot SLA / 10000
+# \tag{2.26b}
+# \end{equation*}
+#
+# You have seen this in [Solution 1 from the previous page](102_variables_of_the_model.html#Solution-1), where it was stated that the equation for $LAI$ "may be considered a *difference equation* or a differential equation".
+#
+# However, in Equation 2.26, $GR$ is defined as the *crop growth rate (g m<sup>-2</sup> d<sup>-1</sup>)*. This variable is in fact the same as $\mathrm{d}W/\mathrm{d}t$. Equation 2.26b becomes therefore:
+#
+# \begin{equation*}
+# \frac{\mathrm{d}LAI}{\mathrm{d}t} = \frac{\mathrm{d}W}{\mathrm{d}t} \cdot F_{leaves} \cdot SLA / 10000
+# \tag{2.26c}
+# \end{equation*}
+#
+# If you recall differentiation rules from calculus, this is equivalent to:
+#
+# \begin{equation*}
+# \frac{\mathrm{d}LAI}{\mathrm{d}t} = \frac{\mathrm{d}W \cdot F_{leaves} \cdot SLA / 10000}{\mathrm{d}t} 
+# \tag{2.26d}
+# \end{equation*}
+#
+# We can then take the antiderivative, which gives (up to a constant):
+#
+# \begin{equation*}
+# LAI = W \cdot F_{leaves} \cdot SLA / 10000
+# \tag{2.26e}
+# \end{equation*}
+#
+# To summarize: instead of using Equations 2.25 and 2.26 as above, we may use:
+#
+# \begin{equation*}
+# \mathrm{d}W/\mathrm{d}t = LUE \cdot \left( 1 - e^{-k \cdot LAI} \right) \cdot I
+# \tag{2.25}
+# \end{equation*}
+#
+# \begin{equation*}
+# LAI = W \cdot F_{leaves} \cdot SLA / 10000
+# \tag{2.26e}
+# \end{equation*}
+
+# %% [markdown]
+# ### Explaining the above in words
+
+# %% [markdown]
+# Equation 2.26 states that the rate of change in $LAI$ is equal to the rate of change of *total crop mass* $W$, multiplied by the fraction partitioned to the leaves $F_{leaves}$, multiplied by $SLA$ (and divided by 10,000 to get the right units). Considering the crop growth processes, this means that as the crop grows, a certain fraction $F_{leaves}$ goes to the leaves, and this growth in leaf mass can be translated to leaf area by using $SLA$.
+#
+# Rather than growth and rate of change, we can look at the state of the crop: the crop has a toal mass $W$, and $W \cdot F_{leaves}$ is the crop's *total leaf mass*, in g of dry weight per m<sup>2</sup> floor. By the same logic of Equation 2.26 (see also Equation 2.14 in pg. 34), the $LAI$ is equal to $W \cdot F_{leaves} \cdot SLA / 10000$.
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ## Exercise 3: Defining the reorganized crop model in a dict
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ```{exercise}
+# :label: exercise-crop-definition-2
+# :enumerated: true
+#
+# Considering the changes above, go back to the previous exercise and edit the `dict` you created. This time, use Equation 2.26e instead of Equation 2.26.
+# ```
+
+# %% editable=true slideshow={"slide_type": ""} tags=["remove-output"]
+"""
+Exercise 2: complete the crop definition dict using Equation 2.26e
+"""
+
+crop_definition = {
+    "W": {
+        "description": "Crop dry mass",
+        "unit": "g/m2",
+        "type": "state",
+        "reference": "Stanghellini (2019), Eq. 2.25."
+    },
+    "LUE": {
+        "description": "Light use efficiency",
+        "unit": "g crop weight per MJ PAR",
+        "type": "const",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "Continue here...": {
+        
     }
 }
 
-url = "https://raw.githubusercontent.com/davkat1/intro_gh_modelling_draft/refs/heads/main/notebooks/input/example_weather.csv"
-urlretrieve(url,"example_weather.csv")
+# Display the above dict
+pprint("crop_definition dict:")
+pprint(crop_definition)
 
-crop_mdl = greenlight.GreenLight(
-    base_path=os.getcwd(), 
-    input_prompt=[crop_definition, os.path.join("example_weather.csv"), options], 
-    output_path=os.path.join("output", "crop_output.csv")
-)
-crop_mdl.run()
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ### Solution 3
 
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ```{solution} exercise-crop-definition-1
+# :label: solution-crop-definition-1
+# :class: dropdown
+#
+# By using Equation 2.26e instead of 2.26, $LAI$ is no longer defined by a differential equation, meaning it is no longer a state. It is now calculated based on other variables, therefore it has a `type` of `"aux"`. Furthermore, the variable $GR$ is no longer used, so it is removed.
+# ```
 
+# %% editable=true slideshow={"slide_type": ""} tags=["hide-input", "remove-output"]
+crop_definition = {
+    "W": {
+        "description": "Crop dry mass",
+        "unit": "g/m2",
+        "type": "state",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "LUE": {
+        "description": "Light use efficiency",
+        "unit": "g crop weight per MJ PAR",
+        "type": "const",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "k": {
+        "description": "Light extinction coefficient",
+        "unit": "-",
+        "type": "const",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "LAI": {
+        "description": "Leaf area index",
+        "unit": "m2 leaf per m2 floor",
+        "type": "aux",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "I": {
+        "description": "Daily light sum",
+        "unit": "MJ PAR per m2",
+        "type": "input",
+        "reference": "Stanghellini (2019), Eq. 2.25"
+    },
+    "fLeaves": {
+        "description": "Fraction of crop dry mass partitioned to the leaves",
+        "unit": "-",
+        "type": "aux",
+        "reference": "Stanghellini (2019), Eq. 2.26"
+    },
+    "SLA": {
+        "description": "Specific leaf area",
+        "unit": "cm2/g",
+        "type": "const",
+        "reference": "Stanghellini (2019), Eq. 2.26"
+    }   
+ }
 
-# %%
-# Load simulation result
-crop_output = pd.read_csv(os.path.join("output", "crop_output.csv"), header=[0,1,2], low_memory=False)
-
-# Display
-def display_output(output_df, chosen_vars, titles, ylabels, line_style):
-    axes = []
-    
-    for vars_to_plot, title, ylabel in zip(chosen_vars, titles, ylabels):
-        fig = plt.figure(figsize=(10, 6))
-        ax = fig.add_subplot(111)
-        
-        for var in vars_to_plot:
-            ax.plot(output_df["Time"], output_df[var], line_style, label=var)
-        
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel(ylabel)
-        ax.set_title(title)
-        ax.legend()
-        ax.grid(True)
-        axes.append(ax)
-        plt.show()
-
-    return axes
-    
-axes = display_output(crop_output, [["W"], ["iSun"]], ["", ""], ["", ""], '-o')
-
-# %%
-display(crop_output)
-
-# %%
-import numpy as np
-
-fig = plt.figure(figsize=(10, 6))
-ax = fig.add_subplot(111)
-ax.plot(1 - np.exp(-0.7*crop_output["LAI"]))
-
-# %%
-# Group rows into blocks of 288
-groups = np.arange(len(crop_output)) // 288
-
-daily_iSun = crop_output['iSun'].groupby(groups).sum()
-daily_W = crop_output['W'].groupby(groups).agg(
-    lambda x: x.iloc[-1] - x.iloc[0]
-)
-
-# Plot both daily values
-fig, ax1 = plt.subplots(figsize=(12, 5))
-
-days = np.arange(1, len(daily_iSun) + 1)
-
-ax1.plot(days, daily_iSun, color='blue')
-ax1.set_xlabel('Day')
-ax1.set_ylabel('Daily sum of iSun', color='blue')
-
-ax2 = ax1.twinx()
-ax2.plot(days, daily_W, color='orange')
-ax2.set_ylabel('Daily difference of W', color='orange')
-
-plt.title('Daily sum of iSun and daily difference of W')
-fig.tight_layout()
-plt.show()
-
-# %%
+# Display the above dict
+pprint("crop_definition dict:")
+pprint(crop_definition)
