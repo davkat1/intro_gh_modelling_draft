@@ -14,7 +14,7 @@
 # ---
 
 # %% [markdown]
-# # Variables of the model
+# # 1.2 Variables of the model
 
 # %% [markdown]
 # In this exercise you will read the model equations and lay out what variables the model includes and what is the relation between them. As in this entire lesson we focus on Eq. 2.25 (pg. 49) and Eq. 2.26 (pg. 50) of [the course textbook](https://doi.org/10.1163/9789004697041). 
@@ -34,11 +34,14 @@
 #     - What units is it in?
 #     - Is it a constant value, or does it evolve through time?
 #     - Is it an input (the values should be given to the model), calculated based on other variables, or calculated using a differential equation?
+#
+# Note that answering this question may require a search through the information in Chapter 2 of the textbook (thus not only pp. 49-50).
 # ```
 
 # %% [markdown]
-# :::{note} ⏱️ Time estimate
-# :icon: false
+# :::{admonition} ⏱️ Time estimate
+# :class: note
+#
 # 20 minutes to 1 hour
 # :::
 
@@ -46,8 +49,8 @@
 # ### Note on differential equations
 
 # %% [markdown]
-# :::{note} Note on differential equations
-# :class: dropdown
+# :::{admonition} Note on differential equations
+# :class: note, dropdown
 #
 # ```{figure} ../../Figures/Parabolic_trajectory.svg
 # ---
@@ -65,6 +68,19 @@
 # is *the rate of change of $W$*. Thus, if $LUE \cdot \left( 1 - e^{-k \cdot LAI} \right) \cdot I = $ 1 g m<sup>-2</sup> d<sup>-1</sup>, then $W$ grows at a rate of 1 g m<sup>-2</sup> d<sup>-1</sup>.
 #
 # For more information, see [Ordinary differential equation on Wikipedia](https://en.wikipedia.org/wiki/Ordinary_differential_equation) and this chapter from [Python Programming and Numerical Methods - A Guide for Engineers and Scientists](https://pythonnumericalmethods.studentorg.berkeley.edu/notebooks/chapter22.00-ODE-Initial-Value-Problems.html).
+# :::
+
+# %% [markdown]
+# ### Some hints for Exercise 1
+
+# %% [markdown]
+# :::{admonition} Some hints for Exercise 1
+# :class: note, dropdown
+#
+# Some information you may need to find, beyond pp. 49-50:
+# - Regarding $k$, have a look at the textbook Section 2.2.4
+# - For $LAI$, see also Section 2.2.4
+# - For $F_{leaves}$, see Section 2.2.10 in the textbook
 # :::
 
 # %% [markdown]

@@ -14,7 +14,7 @@
 # ---
 
 # %% [markdown]
-# # A simple crop model
+# # 1.1 A simple crop model
 
 # %% [markdown]
 # ## In this lesson
@@ -33,7 +33,8 @@
 # As a preparation for this lesson, it is recommended to **read through Chapter 2 (pp. 26-53) of the course textbook**. You don't have to fully absorb everything, as we will highlight the important parts that will be used in this lesson. However, the entire chapter provides relevant context.
 
 # %% [markdown]
-# :::{note} ⏱️ Time estimate
-# :icon: false
+# :::{admonition} ⏱️ Time estimate
+# :class: note
+#
 # 1-2 hours
 # :::

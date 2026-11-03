@@ -17,10 +17,7 @@
 # # Implementing the crop model in GreenLight
 
 # %% [markdown]
-# In this section, we will implement the crop model that we described in the previous section by using the [GreenLight modelling platform](https://github.com/davkat1/greenlight).  
-
-# %% [markdown]
-# ## What is GreenLight?
+# ## Reminder: what is GreenLight?
 
 # %% [markdown]
 # [GreenLight](https://github.com/davkat1/greenlight) has been originally developed as [an open-source model for greenhouses with a tomato crop](https://doi.org/10.1016/j.biosystemseng.2020.03.010). Since then, it has been expanded to be used as a modelling platform where [various model components can be combined](https://greenlight.readthedocs.io/en/latest/user/modifying_and_combining_models.html). GreenLight is therefore no longer a singular model, but allows to define and run models in a structured way, which will be used in this chapter.
@@ -28,7 +25,31 @@
 # This course is based on **GreenLight v2.0.7**.
 
 # %% [markdown]
-# ## Using live code in this page
+# ### Defining models in GreenLight
+
+# %% [markdown]
+# Models are defined in GreenLight using a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables. Each variable is itself defined using a dictionary, so the model definition is in fact a dictionary of dictionaries. The *keys* of the model definition dictionary are the names of the variables. For each variable, the corresponding *value* is another dictionary, with the following *keys*:
+# - `description` - a description of the variable
+# - `unit` - the unit that the variable's values are in
+# - `reference` - a reference describing where the variable definition came from
+# - `definition` - a definition of the variable. This may be a single value, input data, or a calculation based on other variables
+# - `type` - the type of variable, which allows GreenLight to know how to process the variable
+
+# %% [markdown]
+# ### Variable types in GreenLight
+
+# %% [markdown]
+# Variables in GreenLight have 5 possible types:
+# - `const` - indicates that the variable stays constant throughout a model run
+# - `input` - indicates that the values for the variable are provided as an input
+# - `aux` - an auxiliary variable: a variable that is calculated based on other variables
+# - `state` - a value that is defined by an ordinary differential equation
+# - `function` - a function that works as a shorthand for repeated calculations
+#
+# In this course, we will focus only on the first 4 `type`s of variables: `const`, `input`, `aux`, and `state`.
+
+# %% [markdown]
+# ## Reminder: using live code in this page
 
 # %% [markdown]
 # In this page we will be using **live code** for the first time in this course. To start, click the rocket button (🚀) at the top of this page, above the title. Then choose "▶ Live Code". The loading may take some time so it is good to start the Live Code before reading on, so it is ready when you need it.
@@ -47,56 +68,15 @@ out_text = "Hi! I'm <...enter whatever you would like here...>!"
 print(out_text)
 
 # %% [markdown]
-# ## Defining models in GreenLight
+# ## Implementing the model in GreenLight
 
 # %% [markdown]
-# Models are defined in GreenLight in a structure that is similar to what we've constructed in the previous chapter: using a [Python dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) (`dict`) that defines the model variables. Like in the previous chapter, this is actually a dictionary of dictionaries. The *keys* of the model definition dictionary are the names of the variables. For each variable, the corresponding *value* is another dictionary, with the following *keys*:
-# - `description` - a description of the variable
-# - `unit` - the unit that the variable's values are in
-# - `reference` - a reference describing where the variable definition came from
-# - `definition` - a definition of the variable. This may be a single value, input data, or a calculation based on other variables
-# - `type` - the type of variable, which allows GreenLight to know how to process the variable
-
-# %% [markdown]
-# ## Variable types in GreenLight
-
-# %% [markdown]
-# Variables in GreenLight have 5 possible types:
-# - `const` - indicates that the variable stays constant throughout a model run
-# - `input` - indicates that the values for the variable are provided as an input
-# - `aux` - an auxiliary variable: a variable that is calculated based on other variables
-# - `state` - a value that is defined by an ordinary differential equation
-# - `function` - a function that works as a shorthand for repeated calculations
-#
-# In this course, we will focus only on the first 4 `type`s of variables: `const`, `input`, `aux`, and `state`.
-
-# %% [markdown]
-# ## Exercise 1
-
-# %% [markdown]
-# ```{exercise}
-# :label: exercise-crop-model-dict
-# :enumerated: true
-#
-# Examine Eq. 2.25 and Eq. 2.26 in the course textbook (pp. 49-50), and write down the following:
-# - Which variables are used in these equations?
-# - For each variable:
-#     - What is it called in the equations?
-#     - What does it represent?
-#     - What units is it in?
-#     - Is it a constant value, or does it evolve through time?
-#     - Is it an input (the values should be given to the model), calculated based on other variables, or calculated using a differential equation?
-# ```
+# We will first [import](https://docs.python.org/3/reference/import.html) some modules that will be used during this section. Run the code block below.
 
 # %%
 """ 
-Imports needed for running the code
+Imports needed for running the code in this section
 """
-# Ignore warnings during ODE solving
-# Typically such warnings should be checked,
-# but for the current exercise it is not important
-import warnings
-warnings.filterwarnings("ignore")
 
 import os
 
@@ -106,7 +86,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from urllib.request import urlretrieve
 
+# The GreenLight package for defining and running dynamic models
 import greenlight
+
+# %% [markdown]
+# Next, we will define a crop model as we did in the previous section. In the code block below, we define a dictionary similar to [Soultion 3 in the previous section](
 
 # %%
 crop_definition = {
@@ -176,7 +160,7 @@ crop_definition = {
          "unit": "cm2/g",
          "definition": "250",
          "type": "const",
-         "reference": "Stanghellini (2019), Box 2.26. " \
+         "reference": "Stanghellini (2019), Eq 2.26. " \
                       "The value of 250 is a middle value for tomato, "\
                       "See Stanghellini (2019), Table 2.1"
     }   

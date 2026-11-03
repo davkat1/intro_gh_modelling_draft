@@ -13,6 +13,8 @@ repository:
 parse:
   myst_enable_extensions:
     - amsmath
+    - dollarmath
+    - colon_fence
 launch_buttons:
   thebe: true
   binderhub_url: https://2i2c.mybinder.org/

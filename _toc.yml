@@ -3,9 +3,12 @@ root: notebooks/L0_introduction/001_introduction
 parts:
   - caption: Lesson 1 - A simple crop model
     chapters:
-      - file: notebooks/L1_a_simple_crop_model/101_introduction
+      - file: notebooks/L1_a_simple_crop_model/101_a_simple_crop_model
       - file: notebooks/L1_a_simple_crop_model/102_variables_of_the_model
-      - file: notebooks/L1_a_simple_crop_model/103_implementing_the_model_in_greenlight
+      - file: notebooks/L1_a_simple_crop_model/103_defining_the_model_in_dict
+      - file: notebooks/L1_a_simple_crop_model/104_reorganizing_the_model
+      - file: notebooks/L1_a_simple_crop_model/105_defining_relations_between_variables
+      - file: notebooks/L1_a_simple_crop_model/106_defining_the_model_in_greenlight
   - caption: Lesson 3
     chapters:
       - file: notebooks/03_tunnel_model_in_greenlight

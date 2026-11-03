@@ -31,7 +31,7 @@
             "type": "const",
             "unit": "cm2/g",
             "description": "Specific leaf area",
-            "reference": "Stanghellini (2019), Box 2.26. The value of 250 is a middle value for tomato, See Stanghellini (2019), Table 2.1"
+            "reference": "Stanghellini (2019), Eq 2.26. The value of 250 is a middle value for tomato, See Stanghellini (2019), Table 2.1"
         }
     },
     "states": {
