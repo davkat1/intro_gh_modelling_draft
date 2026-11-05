@@ -14,7 +14,32 @@
 # ---
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
-# # 1.6 Defining the model in GreenLight
+# # 1.6 Defining the model for GreenLight
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# ## Live code in this page
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# This page uses **live code**. Click the rocket button (🚀) at the top of this page, above the title, then choose "▶ Live Code". The loading may take some time so it is good to start the Live Code before reading on. The Live Code engine is ready when you see a text under the page's title, stating something like "Launching from mybinder.org: **ready**.
+#
+# **Note:** Code that you edit in the live code blocks is not saved. Any changes you make to the code blocks is lost once you move on from the page. Therefore, if you want to keep your work, save a copy of it in a local document.
+#
+# The code block below defines some imports and functions that will be helpful in the current page. It is run automatically when you run the "▶ Live Code" button. You may have a look at it if you like, but that is not neccesary for this course.
+
+# %% editable=false slideshow={"slide_type": ""} tags=["remove-output", "hide-input", "thebe-init"]
+import pandas as pd
+
+def display_dict(d):
+    """
+    Below, some dictionaries will be define in the standard
+    GreenLight format for describing models.
+    This functions displays such dictionaries in a nicely
+    readable format
+    """
+    df = pd.DataFrame.from_dict(d, orient="index")
+    df.index.name = "Variable"
+    display(df)
+
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
 # ## Going back to the model definition dict
@@ -57,7 +82,7 @@ crop_definition = {
     },
     "I": {
         "description": "Daily light sum",
-        "unit": "MJ PAR per m2",
+        "unit": "MJ PAR per m2 per day",
         "type": "input",
         "reference": "Stanghellini (2019), Eq. 2.25"
     },
@@ -76,8 +101,7 @@ crop_definition = {
  }
 
 # Display the above dict
-pprint("crop_definition dict:")
-pprint(crop_definition)
+display_dict(crop_definition)
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
 # ## Adding variable definitions to the dictionary
@@ -88,7 +112,7 @@ pprint(crop_definition)
 # %% [markdown]
 # ### The definition field in GreenLight
 
-# %% [markdown]
+# %% [markdown] editable=true slideshow={"slide_type": ""}
 # In GreenLight model descriptions, variables should have a `definition` field which describes how the variable is derived. The `definition` field works as follows:
 # 1. The `definition` is always defined with a string, even if it represents a number. So use for example `"definition": "6"` and not `"definition": 6`.
 # 2. For `const` variables, the `definition` should be simply a number (example: `"definition": "6"`)
@@ -117,8 +141,6 @@ pprint(crop_definition)
 """
 Exercise 5: complete the crop definition dict with definitions for each variable
 """
-# Method for displaying dicts in a friendly way ("pretty print")
-from pprint import pprint
 
 crop_definition = {
     "W": {
@@ -152,7 +174,7 @@ crop_definition = {
     },
     "I": {
         "description": "Daily light sum",
-        "unit": "MJ PAR per m2",
+        "unit": "MJ PAR per m2 per day",
         "type": "input",
         "reference": "Stanghellini (2019), Eq. 2.25"
     },
@@ -173,8 +195,7 @@ crop_definition = {
  }
 
 # Display the above dict
-pprint("crop_definition dict:")
-pprint(crop_definition)
+display_dict(crop_definition)
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
 # ### Solution 5
@@ -186,10 +207,8 @@ pprint(crop_definition)
 
 # %% editable=true slideshow={"slide_type": ""} tags=["hide-input", "remove-output"]
 """
-Exercise 5: complete the crop definition dict with definitions for each variable
+Solution to Exercise 5: complete the crop definition dict with definitions for each variable
 """
-# Method for displaying dicts in a friendly way ("pretty print")
-from pprint import pprint
 
 crop_definition = {
     "W": {
@@ -223,7 +242,7 @@ crop_definition = {
     },
     "I": {
         "description": "Daily light sum",
-        "unit": "MJ PAR per m2",
+        "unit": "MJ PAR per m2 per day",
         "type": "input",
         "reference": "Stanghellini (2019), Eq. 2.25"
     },
@@ -244,7 +263,6 @@ crop_definition = {
  }
 
 # Display the above dict
-pprint("crop_definition dict:")
-pprint(crop_definition)
+display_dict(crop_definition)
 
-# %%
+# %% editable=true slideshow={"slide_type": ""}

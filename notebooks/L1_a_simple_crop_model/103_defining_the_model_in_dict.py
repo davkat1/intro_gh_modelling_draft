@@ -24,7 +24,15 @@
 #
 # If the Live Code fails to load for whatever reason, you can try clicking the rocket button (🚀) and choosing **Binder** instead.
 #
-# The material in this page contains **editable Python code blocks**. Once the Live Code engine is ready (you should see a text under the page's title, stating something like "Launching from mybinder.org: **ready**), all code blocks become editable. Simply click anywhere on the text in the code block, edit in, and then click *run*. As a first try, you may try the code below.
+# The material in this page contains **editable Python code blocks**. Once the Live Code engine is ready (you should see a text under the page's title, stating something like **"Launching from mybinder.org: `ready`**"), the code blocks become editable. Simply click anywhere on the text in the code block, edit in, and then click *run*. As a first try, you may try the code below.
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# :::{admonition} Note
+# :class: note
+#
+# Code that you edit in the live code blocks is not saved. Any changes you make to the code blocks is lost once you move on from the page. Therefore, if you want to keep your work, save a copy of it in a local document.
+#
+# :::
 
 # %% editable=true slideshow={"slide_type": ""} tags=["remove-output"]
 """
@@ -34,6 +42,24 @@ Editable code block for testing
 out_text = "Hi! I'm <...enter whatever you would like here...>!"
 
 print(out_text)
+
+# %% [markdown] editable=true slideshow={"slide_type": ""}
+# The code block below defines some imports and functions that will be helpful in the current page. It is run automatically when you run the "▶ Live Code" button. You may have a look at it if you like, but that is not neccesary for this course.
+
+# %% editable=false slideshow={"slide_type": ""} tags=["remove-output", "hide-input", "thebe-init"]
+import pandas as pd
+
+def display_dict(d):
+    """
+    Below, some dictionaries will be define in the standard
+    GreenLight format for describing models.
+    This functions displays such dictionaries in a nicely
+    readable format
+    """
+    df = pd.DataFrame.from_dict(d, orient="index")
+    df.index.name = "Variable"
+    display(df)
+
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
 # ## Towards implementing the crop model in GreenLight
@@ -92,9 +118,6 @@ print(out_text)
 Exercise 2: complete the crop definition dict with description, unit, type, and reference
 """
 
-# Method for displaying dicts in a friendly way ("pretty print")
-from pprint import pprint
-
 crop_definition = {
     "W": {
         "description": "Crop dry mass",
@@ -114,8 +137,7 @@ crop_definition = {
 }
 
 # Display the above dict
-pprint("crop_definition dict:")
-pprint(crop_definition)
+display_dict(crop_definition)
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
 # ### Solution 2
@@ -126,6 +148,10 @@ pprint(crop_definition)
 # ```
 
 # %% editable=true slideshow={"slide_type": ""} tags=["hide-input", "remove-output"]
+"""
+Solution to Exercise 2: complete the crop definition dict with description, unit, type, and reference
+"""
+
 crop_definition = {
     "W": {
         "description": "Crop dry mass",
@@ -153,7 +179,7 @@ crop_definition = {
     },
     "I": {
         "description": "Daily light sum",
-        "unit": "MJ PAR per m2",
+        "unit": "MJ PAR per m2 per day",
         "type": "input",
         "reference": "Stanghellini (2019), Eq. 2.25"
     },
@@ -178,5 +204,6 @@ crop_definition = {
  }
 
 # Display the above dict
-pprint("crop_definition dict:")
-pprint(crop_definition)
+display_dict(crop_definition)
+
+# %% editable=true slideshow={"slide_type": ""}

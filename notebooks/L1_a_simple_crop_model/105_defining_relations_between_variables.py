@@ -34,7 +34,7 @@
 # | $LUE$        | Light use efficiency                                | g crop weight per MJ PAR                   | `const`   |
 # | $k$          | Light extinction coefficient                        | -                                          | `const`   |
 # | $LAI$        | Leaf area index                                     | m<sup>2</sup> leaf per m<sup>2</sup> floor | `aux`     |
-# | $I$          | Daily light sum                                     | MJ PAR per m<sup>2</sup>                   | `input`   |
+# | $I$          | Daily light sum                                     | MJ PAR per m<sup>2</sup> per day           | `input`   |
 # | $F_{leaves}$ | Fraction of crop dry mass partitioned to the leaves |  -                                         | `aux`     |
 # | $SLA$        | Specific leaf area                                  | cm<sup>2</sup>/g                           | `const`   |
 #
@@ -64,7 +64,7 @@
 # | $LUE$        | Light use efficiency                                | g crop weight per MJ PAR                   | `const`   | 4.3 | See pg. 49 of the textbook: this is a typical middle value |
 # | $k$          | Light extinction coefficient                        | -                                          | `const`   | Complete here... | Complete here... |
 # | $LAI$        | Leaf area index                                     | m<sup>2</sup> leaf per m<sup>2</sup> floor | `aux`     | ... | ... |
-# | $I$          | Daily light sum                                     | MJ PAR per m<sup>2</sup>                   | `input`   |  |  |
+# | $I$          | Daily light sum                                     | MJ PAR per m<sup>2</sup> per day           | `input`   |  |  |
 # | $F_{leaves}$ | Fraction of crop dry mass partitioned to the leaves |  -                                         | `const`     | ... | ... (we treat this variable as a constant for now) |
 # | $SLA$        | Specific leaf area                                  | cm<sup>2</sup>/g                           | `const`   | ... | ... |
 
@@ -97,8 +97,10 @@
 # | $LUE$        | Light use efficiency                                | g crop weight per MJ PAR                   | `const`   | 4.3 | See pg. 49 of the textbook: this is a typical middle value |
 # | $k$          | Light extinction coefficient                        | -                                          | `const`   | 0.7 | See pg. 39:  "For many greenhouse crops, k has a value between 0.6 and 0.8" |
 # | $LAI$        | Leaf area index                                     | m<sup>2</sup> leaf per m<sup>2</sup> floor | `aux`     | $ W \cdot F_{leaves} \cdot SLA / 10000 $ | See Eq. 2.26e in the previous Section |
-# | $I$          | Daily light sum                                     | MJ PAR per m<sup>2</sup>                   | `input`   |  |  |
+# | $I$          | Daily light sum                                     | MJ PAR per m<sup>2</sup> per day           | `input`   |  |  |
 # | $F_{leaves}$ | Fraction of crop dry mass partitioned to the leaves |  -                                         | `aux`     | 0.8 | Choice for a vegetative crop with mostly leaves |
 # | $SLA$        | Specific leaf area                                  | cm<sup>2</sup>/g                           | `const`   | 250 | See Table 2.1 (pg. 50) of the textbook. 250 is a middle value for a tomato crop |
 #     
 # ```
+
+# %%

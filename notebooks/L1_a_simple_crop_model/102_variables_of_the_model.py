@@ -114,7 +114,7 @@
 #     - It is calculated based on other variables, see Eq. 2.26. This equation describes the difference between "$LAI$ on day $t$ and day $t-1$, so it may be considered a *difference equation* or a differential equation<br><br>
 #
 # - $I$, representing **daily light sum**
-#     - Its unit is MJ<sup>-1</sup> PAR m<sup>-2</sup>
+#     - Its unit is MJ<sup>-1</sup> PAR m<sup>-2</sup> d<sup>-1</sup> (MJ PAR per m<sup>2</sup> per day)
 #     - Its value evolves in time, and should be given to the model<br><br>
 #
 # **<span style="font-size: 1.2em">The variables in Eq. 2.26 are:</span>**

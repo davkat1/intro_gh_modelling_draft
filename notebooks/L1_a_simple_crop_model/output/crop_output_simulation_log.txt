@@ -5,7 +5,7 @@ Platform release: 11
 Architecture: 64bit
 Machine: AMD64
 Script: ipykernel_launcher.py
-Object created (ISO format): 2026-11-03T17:34:52.953706
+Object created (ISO format): 2026-11-05T18:10:30.612183
 
 Loading model from example_weather.csv
 
@@ -20,7 +20,7 @@ New definition: 300
 Replaced option t_eval by definition from {'options': {'t_start': '0', 't_end': '8640000', 'output_step': '300', 't_eval': '300'}}.
 Old definition: None
 New definition: 300
-Simulation started at time (ISO format): 2026-11-03T17:34:53.099583
+Simulation started at time (ISO format): 2026-11-05T18:10:30.846365
 Model definitions converted to Python function:
 def dy_from_str(t, y, d_matrix, t_span):
 	dy = np.zeros(y.shape)
@@ -44,9 +44,9 @@ def dy_from_str(t, y, d_matrix, t_span):
 
 	return dy
 
-Simulation complete at time (ISO format): 2026-11-03T17:34:58.749184
+Simulation complete at time (ISO format): 2026-11-05T18:10:37.230587
 Simulated 99.99652777777777 days
-Elapsed time: 5.649600267410278 seconds
+Elapsed time: 6.384222030639648 seconds
 Output saved to file output\crop_output.csv
 Model structure log saved to output\crop_output_model_struct_log.json
 Simulation log saved to output\crop_output_simulation_log.txt
