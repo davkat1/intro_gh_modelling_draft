@@ -1,5 +1,6 @@
 jupyter-book<2
 sphinx
+sphinx-exercise
 numpy
 matplotlib
 pandas

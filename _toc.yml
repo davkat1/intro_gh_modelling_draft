@@ -9,8 +9,3 @@ parts:
       - file: notebooks/L1_a_simple_crop_model/104_reorganizing_the_model
       - file: notebooks/L1_a_simple_crop_model/105_defining_relations_between_variables
       - file: notebooks/L1_a_simple_crop_model/106_defining_the_model_in_greenlight
-  - caption: Lesson 3
-    chapters:
-      - file: notebooks/03_tunnel_model_in_greenlight
-      - file: notebooks/04_from_steady_state_to_dynamic_model
-      - file: notebooks/05_including_a_crop_model
