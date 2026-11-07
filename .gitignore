@@ -6,3 +6,4 @@ _build
 *.vsdx
 *.png
 *.~vsdx
+*simulation_log.txt

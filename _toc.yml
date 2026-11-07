@@ -10,3 +10,4 @@ parts:
       - file: notebooks/L1_a_simple_crop_model/105_defining_relations_between_variables
       - file: notebooks/L1_a_simple_crop_model/106_defining_the_model_for_greenlight
       - file: notebooks/L1_a_simple_crop_model/107_reorganizing_input
+      - file: notebooks/L1_a_simple_crop_model/108_running_the_model_in_greenlight

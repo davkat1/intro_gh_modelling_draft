@@ -192,7 +192,7 @@ display_dict(crop_definition)
 
 # %% editable=true slideshow={"slide_type": ""} tags=["hide-input", "remove-output"]
 """
-Exercise 6: replace the definition of the input variable I with a definition of Iw, as above
+Solution to Exercise 6: replace the definition of the input variable I with a definition of Iw, as above
 """
 
 crop_definition = {
