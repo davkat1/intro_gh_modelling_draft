@@ -253,3 +253,163 @@ fig.tight_layout()
 plt.show()
 
 # %%
+
+import ipywidgets as widgets
+import matplotlib.pyplot as plt
+import pandas as pd
+
+from IPython.display import display, clear_output
+
+# --------------------------------------------------
+# 1. Define the input sliders
+# --------------------------------------------------
+
+slider_1 = widgets.FloatSlider(
+    value=75,
+    min=0,
+    max=250,
+    step=0.1,
+    description='Initial value for W:',
+    continuous_update=False
+)
+
+slider_2 = widgets.FloatSlider(
+    value=200,
+    min=0,
+    max=1000,
+    step=1,
+    description='Iw',
+    continuous_update=False
+)
+
+slider_3 = widgets.IntSlider(
+    value=4.3,
+    min=0,
+    max=20,
+    step=0.01,
+    description='LUE',
+    continuous_update=False
+)
+
+
+# --------------------------------------------------
+# 2. Define the buttons
+# --------------------------------------------------
+
+run_button = widgets.Button(
+    description='Run model',
+    button_style='success',
+    icon='play'
+)
+
+delete_button = widgets.Button(
+    description='Delete latest curve',
+    button_style='danger',
+    icon='trash'
+)
+
+
+# --------------------------------------------------
+# 3. Set up the plot
+# --------------------------------------------------
+
+fig, ax = plt.subplots(figsize=(10, 5))
+
+ax.set_xlabel('Time')
+ax.set_ylabel('Model output')
+ax.set_title('Model trajectories')
+ax.grid(True, alpha=0.3)
+
+# Store the curves and their labels
+curves = []
+
+
+# --------------------------------------------------
+# 4. Function to run the model
+# --------------------------------------------------
+import copy
+
+def run_model(button):
+
+    # Read slider values
+    p1 = slider_1.value
+    p2 = slider_2.value
+    p3 = slider_3.value
+
+    crop_definition_new = copy.deepcopy(crop_definition)
+    crop_definition_new["W"]["init"] = str(p1)
+    crop_definition_new["Iw"]["definition"] = str(p2)
+    crop_definition_new["LUE"]["definition"] = str(p3)
+    
+    # Create a new model
+    model = greenlight.GreenLight(input_prompt=crop_definition_new)
+
+    # Run the model
+    model.run()
+
+    # Read the output file
+    data = pd.read_csv(model.output_file)
+
+    # Extract time and output
+    time = data['time']
+    values = data['value']
+
+    # Add a new curve
+    line, = ax.plot(
+        time,
+        values,
+        label=f'Run {len(curves)+1}: '
+              f'p1={p1}, p2={p2}, p3={p3}'
+    )
+
+    curves.append(line)
+
+    # Update legend and display
+    ax.legend(loc='best')
+    fig.canvas.draw_idle()
+
+
+# --------------------------------------------------
+# 5. Function to delete the latest curve
+# --------------------------------------------------
+
+def delete_latest(button):
+
+    if curves:
+
+        # Remove the most recent curve
+        line = curves.pop()
+        line.remove()
+
+        # Update legend
+        ax.legend(loc='best')
+
+        fig.canvas.draw_idle()
+
+
+# --------------------------------------------------
+# 6. Connect buttons to functions
+# --------------------------------------------------
+
+run_button.on_click(run_model)
+delete_button.on_click(delete_latest)
+
+
+# --------------------------------------------------
+# 7. Display the interface
+# --------------------------------------------------
+
+controls = widgets.VBox([
+    widgets.HTML('<h3>Model parameters</h3>'),
+    slider_1,
+    slider_2,
+    slider_3,
+    widgets.HBox([
+        run_button,
+        delete_button
+    ])
+])
+
+display(controls)
+display(fig)
+

@@ -1,0 +1,86 @@
+{
+    "info": "Automatically generated model structure log. See accompanying simulation log for more info",
+    "constants": {
+        "LUE": {
+            "definition": "5",
+            "formatted definition": "5",
+            "type": "const",
+            "unit": "g crop weight per MJ PAR",
+            "description": "Light use efficiency",
+            "reference": "Stanghellini (2019), Eq. 2.25"
+        },
+        "k": {
+            "definition": "0.7",
+            "formatted definition": "0.7",
+            "type": "const",
+            "unit": "-",
+            "description": "Light extinction coefficient",
+            "reference": "Stanghellini (2019), Eq. 2.25"
+        },
+        "fLeaves": {
+            "definition": "0.8",
+            "formatted definition": "0.8",
+            "type": "const",
+            "unit": "-",
+            "description": "Fraction of crop dry mass partitioned to the leaves",
+            "reference": "Stanghellini (2019), Eq. 2.26"
+        },
+        "SLA": {
+            "definition": "250",
+            "formatted definition": "250",
+            "type": "const",
+            "unit": "cm2/g",
+            "description": "Specific leaf area",
+            "reference": "Stanghellini (2019), Eq. 2.26"
+        }
+    },
+    "states": {
+        "W": {
+            "definition": "LUE * ( 1 - exp(-k*LAI) ) * 1/1000000 * Iw",
+            "formatted definition": "LUE * ( 1 - (np.exp(-k*LAI)) ) * 1/1000000 * Iw",
+            "type": "state",
+            "unit": "g/m2",
+            "description": "Crop dry mass",
+            "reference": "Stanghellini (2019), Eq. 2.25"
+        }
+    },
+    "auxiliary states": {
+        "LAI": {
+            "definition": "W * fLeaves * SLA / 10000",
+            "formatted definition": "W * fLeaves * SLA / 10000",
+            "type": "aux",
+            "unit": "m2 leaf per m2 floor",
+            "description": "Leaf area index",
+            "reference": "Stanghellini (2019), Eq. 2.25"
+        },
+        "Iw": {
+            "definition": "200.0",
+            "formatted definition": "200.0",
+            "type": "aux",
+            "unit": "W PAR per m2",
+            "description": "PAR intensity",
+            "reference": "Stanghellini (2019), Eq. 2.25, adjusting I (in MJ/m2/day) to Iw (in W/m2)"
+        }
+    },
+    "options": {
+        "t_start": "0",
+        "t_end": "86400",
+        "formatting_mode": "numpy",
+        "expand_variables": "False",
+        "expand_functions": "True",
+        "solving_method": "solve_ivp_from_str",
+        "interpolation": "linear",
+        "solver": "BDF",
+        "first_step": "None",
+        "max_step": "3600",
+        "atol": "1e-3",
+        "rtol": "1e-6",
+        "output_step": "3600",
+        "t_eval": "None",
+        "clip_large_nums": "True",
+        "nans_to_zeros": "True",
+        "warn_loading": "False",
+        "warn_runtime": "False",
+        "log_runtime_warnings": "True"
+    }
+}
