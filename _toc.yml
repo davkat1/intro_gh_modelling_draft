@@ -13,6 +13,6 @@ chapters:
     - file: notebooks/L2_implementing_the_crop_model/200_implementing_the_crop_model
       sections:
       - file: notebooks/L2_implementing_the_crop_model/201_defining_the_model_in_dict
-      - file: notebooks/L2_implementing_the_crop_model/202_defining_the_model_for_greenlight
+      - file: notebooks/L2_implementing_the_crop_model/202_running_the_model_in_greenlight.ipynb
       - file: notebooks/L2_implementing_the_crop_model/203_analyzing_the_model
       - file: notebooks/L2_implementing_the_crop_model/204_summary
