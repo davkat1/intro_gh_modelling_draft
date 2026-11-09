@@ -1,19 +1,17 @@
 format: jb-book
 root: notebooks/L0_introduction/001_introduction
-parts:
-  - caption: Lesson 1 - A simple crop model
-    chapters:
-      - file: notebooks/L1_a_simple_crop_model/101_a_simple_crop_model
-      - file: notebooks/L1_a_simple_crop_model/102_variables_of_the_model
-      - file: notebooks/L1_a_simple_crop_model/103_reorganizing_the_model
-      - file: notebooks/L1_a_simple_crop_model/104_defining_relations_between_variables
-      - file: notebooks/L1_a_simple_crop_model/105_reorganizing_input
-      - file: notebooks/L1_a_simple_crop_model/106_summary
+chapters:
+    - file: notebooks/L1_a_simple_crop_model/100_a_simple_crop_model
+      sections:
+      - file: notebooks/L1_a_simple_crop_model/101_variables_of_the_model
+      - file: notebooks/L1_a_simple_crop_model/102_reorganizing_the_model
+      - file: notebooks/L1_a_simple_crop_model/103_defining_relations_between_variables
+      - file: notebooks/L1_a_simple_crop_model/104_reorganizing_input
+      - file: notebooks/L1_a_simple_crop_model/105_summary
 
-  - caption: Lesson 2 - Implementing the crop model with GreenLight
-    chapters:
-      - file: notebooks/L2_implementing_the_crop_model/201_implementing_the_crop_model
-      - file: notebooks/L2_implementing_the_crop_model/202_defining_the_model_in_dict
-      - file: notebooks/L2_implementing_the_crop_model/203_defining_the_model_for_greenlight
-      - file: notebooks/L2_implementing_the_crop_model/204_analyzing_the_model
-      - file: notebooks/L2_implementing_the_crop_model/205_summary
+    - file: notebooks/L2_implementing_the_crop_model/200_implementing_the_crop_model
+      sections:
+      - file: notebooks/L2_implementing_the_crop_model/201_defining_the_model_in_dict
+      - file: notebooks/L2_implementing_the_crop_model/202_defining_the_model_for_greenlight
+      - file: notebooks/L2_implementing_the_crop_model/203_analyzing_the_model
+      - file: notebooks/L2_implementing_the_crop_model/204_summary
