@@ -6,5 +6,5 @@ matplotlib
 pandas
 ipython
 ipympl
-ipywidgets
+ipywidgets==7.7.2
 greenlight

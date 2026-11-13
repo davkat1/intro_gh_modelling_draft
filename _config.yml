@@ -23,8 +23,3 @@ execute:
 sphinx:
   extra_extensions:
     - sphinx_exercise
-  config:
-    nb_ipywidgets_js:
-      "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.1.0/dist/embed-amd.js":
-        data-jupyter-widgets-cdn: "https://cdn.jsdelivr.net/npm/"
-        crossorigin: anonymous
