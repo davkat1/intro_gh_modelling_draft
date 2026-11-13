@@ -8,3 +8,5 @@ _build
 *.~vsdx
 *simulation_log.txt
 */output/*
+*.csv
+*.json
